@@ -1,0 +1,64 @@
+= Vector Database Deployment Guide (v1)
+
+== Overview
+
+This document explains how to deploy a vector database for retrieval augmented generation (RAG) workflows. The system stores embeddings created from documentation and supports semantic similarity search.
+
+== Requirements
+
+* Python 3.11+
+* Docker 24+
+* Minimum 8 GB RAM
+* Internet access for downloading embedding models
+
+== Installation
+
+. Clone the repository
+
+[source,bash]
+----
+git clone https://example.com/vector-db.git
+cd vector-db
+----
+
+. Install Python dependencies
+
+[source,bash]
+----
+pip install -r requirements.txt
+----
+
+. Launch the service
+
+[source,bash]
+----
+docker compose up -d
+----
+
+== Embedding Generation
+
+Embeddings are generated using the `nomic-embed-text-v1` model.
+
+[source,python]
+----
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("nomic-ai/nomic-embed-text-v1")
+embedding = model.encode("Example sentence")
+----
+
+== Querying the Database
+
+Queries use cosine similarity to compare vector embeddings.
+
+[source,python]
+----
+results = vector_store.similarity_search("How do I deploy thisystem?")
+----
+
+== Troubleshooting
+
+If the service does not start:
+
+* Check Docker container logs
+* Confirm required ports are open
