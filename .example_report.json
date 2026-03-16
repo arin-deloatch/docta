@@ -1,0 +1,21 @@
+{
+  "old_version": "v1",
+  "new_version": "v2",
+  "unchanged": [],
+  "modified": [
+    {
+      "old_relative_path": "vdb_deployment/v1_vdb_deployment_example.html",
+      "new_relative_path": "vdb_deployment/v2_vdb_deployment_example.html",
+      "old_topic_slug": "vdb_deployment",
+      "new_topic_slug": "vdb_deployment",
+      "relationship": "modified",
+      "confidence": 1.0,
+      "similarity_score": 100.0,
+      "raw_hash_equal": false,
+      "normalized_hash_equal": false
+    }
+  ],
+  "renamed_candidates": [],
+  "removed": [],
+  "added": []
+}

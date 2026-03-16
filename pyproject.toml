@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-doc-delta-poc = "doc_delta_poc.cli:app"
+doc-diff-tracker = "doc_diff_tracker.cli:app"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
@@ -24,3 +24,13 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.9.4",
+    "black>=26.3.1",
+    "mypy>=1.19.1",
+    "pylint>=4.0.5",
+    "pyright>=1.1.408",
+    "ruff>=0.15.6",
+]
