@@ -11,8 +11,7 @@
       "relationship": "modified",
       "confidence": 1.0,
       "similarity_score": 100.0,
-      "raw_hash_equal": false,
-      "normalized_hash_equal": false
+      "raw_hash_equal": false
     }
   ],
   "renamed_candidates": [],
