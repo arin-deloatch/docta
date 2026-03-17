@@ -1,6 +1,13 @@
-# doc-diff-tracker
+<p align="center">
+  <img src="assets/doc-diff.png" alt="AI Generated Triangle" width="400"/>
+</p>
 
-A tool for tracking and analyzing differences across documentation versions using semantic content extraction.
+<h1 align="center">DOCTA</h1>
+
+<p align="center"><i>A tool for tracking and analyzing differences across documentation versions using semantic content extraction.</i></p>
+
+---
+<p align="center" style="font-weight: bold;"><i>This repository is under heavy construction.</i></p>
 
 ## Features
 
