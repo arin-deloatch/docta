@@ -5,10 +5,11 @@ from __future__ import annotations
 import hashlib
 import logging
 from pathlib import Path
+from typing import Generator
 
-from ..models.models import DocumentRecord
-from .constants import ALLOWED_EXTENSIONS, MAX_FILES_TO_PROCESS
-from .security import SecurityError, validate_file_for_reading
+from doc_diff_tracker.models.models import DocumentRecord
+from doc_diff_tracker.utils.constants import ALLOWED_EXTENSIONS, MAX_FILES_TO_PROCESS
+from doc_diff_tracker.utils.security import SecurityError, validate_file_for_reading
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,9 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def iter_html_docs(root: Path, allow_symlinks: bool = False):
+def iter_html_docs(
+    root: Path, allow_symlinks: bool = False
+) -> Generator[Path, None, None]:
     """Yield HTML files found recursively under root."""
     file_count = 0
 
@@ -55,7 +58,8 @@ def _process_html_file(
         validate_file_for_reading(html_path, allowed_extensions=ALLOWED_EXTENSIONS)
 
         relative_path = str(html_path.relative_to(root_path))
-        topic_slug = html_path.relative_to(root_path).parts[0]
+        parts = html_path.relative_to(root_path).parts
+        topic_slug = parts[0] if parts else html_path.stem
 
         raw_bytes = html_path.read_bytes()
 

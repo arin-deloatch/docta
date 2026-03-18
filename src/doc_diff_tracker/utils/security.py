@@ -7,7 +7,10 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from .constants import MAX_FILE_SIZE_BYTES
+from doc_diff_tracker.utils.constants import (
+    FORBIDDEN_SYSTEM_DIRS,
+    MAX_FILE_SIZE_BYTES,
+)
 
 
 class SecurityError(Exception):
@@ -67,8 +70,7 @@ def validate_input_directory(
 
 def _check_forbidden_system_dirs(path: Path) -> None:
     """Check if path is in a forbidden system directory."""
-    forbidden_dirs = {"/etc", "/sys", "/proc", "/dev", "/boot", "/root"}
-    for forbidden in forbidden_dirs:
+    for forbidden in FORBIDDEN_SYSTEM_DIRS:
         try:
             path.relative_to(forbidden)
             raise SecurityError(f"Writing to system directory forbidden: {forbidden}")
