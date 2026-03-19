@@ -1,0 +1,159 @@
+================================================================================
+GENERATED QA SETS
+================================================================================
+
+QA Pair #1
+--------------------------------------------------------------------------------
+Question: How does the use of OTB tokens improve the autentication process for IdM users?
+
+Ground Truth: The use of one-time password (OTP) tokens improves the authentication process for IdM users by adding an extra layer of security to user accounts. This requires two forms of verification: something the user knows (password) and something the user has (OTP token). Users enter the one-time password (OTP) after their regular password. The OTP codes are time-based and rotate every 30 seconds, providing enhanced security against replay attacks and unauthorized access attempts.
+
+Query Style: MISSPELLED
+Query Length: MEDIUM
+Persona: Lena Secure
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #2
+--------------------------------------------------------------------------------
+Question: What is Googel Authenticator for IdM?
+
+Ground Truth: Google Authenticator is a mobile application that IdM supports for software-based one-time password (OTP) generation.
+
+Query Style: MISSPELLED
+Query Length: SHORT
+Persona: Ida Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #3
+--------------------------------------------------------------------------------
+Question: How does the OTP system work for two-factor autentication in IdM?
+
+Ground Truth: In IdM, the one-time password (OTP) is a form of verification that users possess, used as part of two-factor authentication. Users are required to enter the OTP after their regular password, with no space between them, either on the command line or in the dedicated field within the Web UI login dialog. IdM supports OTP generation through both hardware tokens and software-based mobile applications such as Google Authenticator or FreeOTP. Before users can successfully authenticate with 2FA enabled, they must first sync their token with the IdM server. These OTP codes are time-based and rotate every 30 seconds, which provides enhanced security against replay attacks and unauthorized access attempts.
+
+Query Style: MISSPELLED
+Query Length: MEDIUM
+Persona: Alex Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #4
+--------------------------------------------------------------------------------
+Question: From an enterprise identity and access management perspective, how does the implementation of OTP tokens contribute to robust multi-factor authentication, and what are the key characteristics and administrative considerations for their use within an IdM system?
+
+Ground Truth: The one-time password (OTP) token contributes to robust multi-factor authentication by serving as the 'something the user has' verification factor, adding an extra layer of security to user accounts alongside the user's password. Users enter the OTP after their regular password on the command line or in the dedicated field in the Web UI login dialog. Key characteristics of OTP codes in this context are that they are time-based and rotate every 30 seconds, which provides enhanced security against replay attacks and unauthorized access attempts. For administrative considerations, IdM administrators can enable two-factor authentication (2FA), which incorporates OTP, either globally or individually for IdM users, and can enforce these 2FA policies at the user level or globally across the entire domain. IdM supports both hardware tokens and software-based OTP generation through mobile applications like Google Authenticator or FreeOTP. A crucial step for users when 2FA is enabled is that they must first sync their token with the IdM server before they can successfully authenticate.
+
+Query Style: PERFECT_GRAMMAR
+Query Length: LONG
+Persona: Lena Secure
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #5
+--------------------------------------------------------------------------------
+Question: How to regiser hardwar tokens?
+
+Ground Truth: Hardware tokens can be registered by entering the token's seed value and serial number.
+
+Query Style: MISSPELLED
+Query Length: SHORT
+Persona: Alex Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #6
+--------------------------------------------------------------------------------
+Question: What are the essential steps for configuring two-factor authentication within Red Hat Identity Management?
+
+Ground Truth: Configuring two-factor authentication in Red Hat Identity Management requires several steps. Initially, administrators must enable OTP authentication on the IdM server using the `ipa config-mod` command with the `--enable-otp` flag. Following this, individual users can be configured for 2FA either by using the `ipa user-mod` command with the `--user-auth-type=otp` option or through the Web UI's Users section. After 2FA is enabled for a user, they must enroll their token by logging into the Web UI and scanning the provided QR code with their authenticator app, or by registering hardware tokens by entering the token's seed value and serial number.
+
+Query Style: PERFECT_GRAMMAR
+Query Length: MEDIUM
+Persona: Ida Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #7
+--------------------------------------------------------------------------------
+Question: What does the `--enabel-otp` flag do?
+
+Ground Truth: The `--enable-otp` flag is used by administrators to enable OTP authentication on the IdM server using the ipa config-mod command.
+
+Query Style: MISSPELLED
+Query Length: SHORT
+Persona: Alex Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #8
+--------------------------------------------------------------------------------
+Question: What is the specific command and flag required to enable OTP authentication on the Red Hat Identity Management server as part of the two-factor authentication setup, utilizing the `ipa config-mod` utility?
+
+Ground Truth: Administrators must enable OTP authentication on the IdM server using the ipa config-mod command with the --enable-otp flag.
+
+Query Style: WEB_SEARCH_LIKE
+Query Length: LONG
+Persona: Ida Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #9
+--------------------------------------------------------------------------------
+Question: How IdM work with 2FA?
+
+Ground Truth: When implementing 2FA, IdM ensures Kerberos tickets are obtained after successful 2FA verification, with the OTP validated before the ticket-granting ticket is issued. SSH access can be configured to require 2FA by modifying the SSH configuration and setting ChallengeResponseAuthentication to yes. Web applications that authenticate through IdM will automatically enforce 2FA requirements if configured on the user account. The authentication flow follows a standard challenge-response pattern where the server requests both password and OTP, validates them independently, and only grants access when both factors are verified correctly.
+
+Query Style: POOR_GRAMMAR
+Query Length: SHORT
+Persona: Alex Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #10
+--------------------------------------------------------------------------------
+Question: As an identity and access management professional, I'm trying to get a clear picture of how the OTE is validated within our enterprise systems, specifically wondering about the process before a Kerberos ticket-granting ticket is issued, and also what occurs if there are too many failed authenication attempts involving this second factor within a short timeframe?
+
+Ground Truth: The OTP is validated before the ticket-granting ticket is issued. The authentication flow follows a standard challenge-response pattern where the server requests both password and OTP, validates them independently, and only grants access when both factors are verified correctly. Failed authentication attempts are logged and can trigger account lockout policies if too many failures occur within a specified time window.
+
+Query Style: MISSPELLED
+Query Length: LONG
+Persona: Lena Secure
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #11
+--------------------------------------------------------------------------------
+Question: How is OTP validated?
+
+Ground Truth: The OTP is validated before the ticket-granting ticket is issued. The authentication flow involves the server requesting both the password and OTP, validating them independently, and only granting access when both factors are verified correctly.
+
+Query Style: WEB_SEARCH_LIKE
+Query Length: SHORT
+Persona: Alex Identity
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
+
+QA Pair #12
+--------------------------------------------------------------------------------
+Question: SAML for what?
+
+Ground Truth: The system can integrate with external identity providers through SAML.
+
+Query Style: POOR_GRAMMAR
+Query Length: SHORT
+Persona: Lena Secure
+Synthesizer: single_hop_specific_query_synthesizer
+
+================================================================================
