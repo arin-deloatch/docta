@@ -37,8 +37,8 @@ def _block_change_to_html_change(block_change: BlockChange) -> HTMLChange:
         description=description,
         old_html_snippet=truncate_content(old_html_snippet) if old_html_snippet else None,
         new_html_snippet=truncate_content(new_html_snippet) if new_html_snippet else None,
-        old_text=truncate_content(old_text) if old_text else None,
-        new_text=truncate_content(new_text) if new_text else None,
+        old_text=old_text,
+        new_text=new_text,
         location=block_change.section_path,
     )
 

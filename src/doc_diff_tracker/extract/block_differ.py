@@ -306,7 +306,7 @@ def _compare_text_blocks(
                 change_type="text_added",
                 description=f"Added {new_count} text block(s)",
                 section_path=section_path,
-                new_content=truncate_content(new_text),
+                new_content=new_text,
                 new_html="\n".join(
                     b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]
                 ),
@@ -318,7 +318,7 @@ def _compare_text_blocks(
                 change_type="text_removed",
                 description=f"Removed {old_count} text block(s)",
                 section_path=section_path,
-                old_content=truncate_content(old_text),
+                old_content=old_text,
                 old_html="\n".join(
                     b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]
                 ),
@@ -334,8 +334,14 @@ def _compare_text_blocks(
                 change_type="text_modified",
                 description=f"Text modified ({char_diff:+d} chars, {similarity:.1f}% similar)",
                 section_path=section_path,
-                old_content=truncate_content(old_text),
-                new_content=truncate_content(new_text),
+                old_content=old_text,
+                new_content=new_text,
+                old_html="\n".join(
+                    b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]
+                ),
+                new_html="\n".join(
+                    b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]
+                ),
                 similarity=similarity,
             )
         )
