@@ -6,6 +6,7 @@ from typing import Literal
 
 # File processing limits
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB per file
+MAX_REPORT_SIZE_BYTES = 100 * 1024 * 1024  # 100MB for aggregate reports
 MAX_FILES_TO_PROCESS = 10_000  # Prevent processing excessive files
 
 # Allowed file extensions
