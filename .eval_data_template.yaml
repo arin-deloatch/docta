@@ -1,0 +1,17 @@
+- conversation_group_id: 
+  description: 
+  conversation_metrics: []
+  conversation_metrics_metadata:
+    tokens:
+      value:
+  turns:
+  - turn_id: 
+    query:
+    attachments: null
+    response: ""
+    tool_calls: null
+    expected_response: 
+    expected_tool_calls: null
+    turn_metrics:
+    -
+    verify_script: null
