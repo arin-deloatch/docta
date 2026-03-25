@@ -178,7 +178,7 @@ export OPENAI_API_KEY="your-api-key"
 qa-generator generate \
   artifacts/semantic_diff_report.json \
   output/qa_pairs.json \
-  --config config/system.yaml.yaml \
+  --config config/system.yaml \
   --testset-size 5 \
   --verbose \
   --overwrite \
@@ -187,7 +187,7 @@ qa-generator generate \
 
 ### Configuration
 
-Create a YAML config file (see `config/system.yaml.yaml`):
+Create a YAML config file (see `config/system.yaml`):
 
 ```yaml
 # LLM Configuration
