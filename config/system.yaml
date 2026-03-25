@@ -1,0 +1,34 @@
+# QA Generation Configuration Example
+# Uses Google Gemini for LLM and embeddings
+
+# LLM Configuration
+llm:
+  provider: google
+  model: gemini-2.5-flash    # Fast and cost-effective for QA generation
+  temperature: 0.0              # Lower = more focused, higher = more creative
+  # max_tokens: 2048            # Optional: limit response length
+
+# Embedding Configuration
+embedding:
+  provider: google
+  model: gemini-embedding-2-preview    # Latest Google embedding model
+
+# Generation Settings
+generation:
+  testset_size: 10              # Number of QA pairs to generate
+
+  # Query Distribution - must sum to 1.0
+  query_distribution:
+    specific: 1.0       # SingleHopSpecificQuerySynthesizer (simple factual, single context)
+    abstract: 0         # MultiHopAbstractQuerySynthesizer (reasoning, multiple contexts)
+    comparative: 0      # MultiHopSpecificQuerySynthesizer (comparisons, multiple contexts)
+
+
+# Filtering Configuration
+# Controls which documentation changes are used for QA generation
+
+  # Change types to include
+  change_types:
+    - text_change               # Text content changes (recommended)
+    # - structure_change        # Structural changes (sections added/removed)
+    # - metadata_change         # Metadata changes (titles, attributes)
