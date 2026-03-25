@@ -19,7 +19,7 @@
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.11+ (3.12+ recommended)
 - uv (package manager)
 
 ## Installation
@@ -105,6 +105,17 @@ Generate delta report by comparing file hashes and paths.
 ### `scan`
 Perform semantic content extraction and comparison on a delta report.
 
+### `qa-generator` (Optional)
+Generate question-answer pairs from semantic diff reports using RAGAS.
+
+**Options:**
+- `--config, -c` - Path to YAML configuration file
+- `--testset-size, -n` - Number of QA pairs to generate
+- `--num-documents, -d` - Limit number of source documents
+- `--format, -f` - Output format (json, yaml, auto)
+- `--overwrite` - Allow overwriting existing output
+- `--verbose, -v` - Enable verbose logging
+
 ## Output
 
 ### Delta Report
@@ -128,7 +139,9 @@ Changes are reported semantically (e.g., "Installation section: added 3 paragrap
 
 ## QA Generation (Optional)
 
-The project includes an optional QA generation feature that uses [RAGAS](https://docs.ragas.io/) to generate question-answer pairs from semantic diff reports. This is useful for creating test datasets to evaluate documentation understanding.
+The project includes an optional QA generation feature that uses [RAGAS](https://docs.ragas.io/) to generate question-answer pairs from semantic diff reports. This is useful for creating test datasets to evaluate RAG systems and documentation understanding.
+
+> **Note**: The LLM provider implementation is currently using LangChain wrappers and will soon migrate to LiteLLM for broader provider support.
 
 ### Installation
 
@@ -139,12 +152,102 @@ uv sync --extra qa
 ```
 
 This installs additional dependencies:
-- `ragas` - QA generation framework
-- `langchain-openai` - LLM integration
-- `langchain-community` - Community LLM providers
-- `pyyaml` - Configuration management
+- `ragas>=0.4.3` - QA generation framework
+- `langchain-core` - LangChain core functionality
+- `langchain-google-genai` - Google Gemini integration
+- `langchain-openai` - OpenAI integration
+- `pyyaml` - YAML configuration support
 
 **Note**: The `qa` extra includes heavy LLM dependencies (~50+ packages). Only install if you need QA generation capabilities.
+
+### Quick Start
+
+**1. Set up API key:**
+
+```bash
+# For Google Gemini
+export GOOGLE_API_KEY="your-api-key"
+
+# For OpenAI
+export OPENAI_API_KEY="your-api-key"
+```
+
+**2. Generate QA pairs from a semantic diff report:**
+
+```bash
+qa-generator generate \
+  artifacts/semantic_diff_report.json \
+  output/qa_pairs.json \
+  --config config/system.yaml.yaml \
+  --testset-size 5 \
+  --verbose \
+  --overwrite \
+  --num-documents 5
+```
+
+### Configuration
+
+Create a YAML config file (see `config/system.yaml.yaml`):
+
+```yaml
+# LLM Configuration
+llm:
+  provider: google
+  model: gemini-2.5-flash   
+  temperature: 0.0              
+  # max_tokens: 2048            
+
+# Embedding Configuration
+embedding:
+  provider: google
+  model: gemini-embedding-2-preview    
+
+# Generation Settings
+generation:
+  testset_size: 10              # Number of QA pairs to generate
+
+  # Query Distribution - must sum to 1.0
+  query_distribution:
+    specific: 1.0       # SingleHopSpecificQuerySynthesizer (simple factual, single context)
+    abstract: 0         # MultiHopAbstractQuerySynthesizer (reasoning, multiple contexts)
+    comparative: 0      # MultiHopSpecificQuerySynthesizer (comparisons, multiple contexts)
+
+
+# Filtering Configuration
+# Controls which documentation changes are used for QA generation
+
+  # Change types to include
+  change_types:
+    - text_change               # Text content changes (recommended)
+    # - structure_change        # Structural changes (sections added/removed)
+    # - metadata_change         # Metadata changes (titles, attributes)
+
+```
+
+### Output Format
+
+Generated QA pairs include full traceability metadata:
+
+```json
+{
+  "question": "How do you enable two-factor authentication in IdM?",
+  "ground_truth_answer": "Use the ipa config-mod command...",
+  "source_topic_slug": "idm-authentication",
+  "source_location": "chapters/security/2fa.html > h2#configuration",
+  "source_change_type": "text_change",
+  "source_versions": ["9.0", "9.1"],
+  "question_type": "SingleHopSpecificQuerySynthesizer",
+  "metadata": {
+    "query_style": "factual"
+  }
+}
+```
+
+### Supported Providers
+
+- **Google Gemini** - `langchain-google-genai` (API key required)
+- **Google Vertex AI** - `langchain-google-vertexai` (ADC or service account)
+- **OpenAI** - `langchain-openai` (API key required)
 
 
 ## Architecture
@@ -152,36 +255,65 @@ This installs additional dependencies:
 The project follows a modular architecture:
 
 ```
-src/doc_diff_tracker/
-├── cli.py                    # CLI entry point (Typer-based)
-├── models/                   # Data models
-│   ├── models.py            # Core delta report models
-│   ├── content.py           # Content block models
-│   └── html_diff.py         # Semantic diff models
-├── extract/                  # Content extraction
-│   ├── content_extractor.py # HTML content extraction
-│   └── block_differ.py      # Block-level diff logic
-├── compare/                  # Comparison logic
-│   ├── lineage.py           # Manifest comparison & delta detection
-│   └── semantic_diff.py     # Semantic content comparison
-├── output/                   # Report generation
-│   └── reporting.py         # JSON report writers & summaries
-└── utils/                    # Utilities
-    ├── inventory.py         # File scanning & hashing
-    ├── security.py          # Path validation & security
-    ├── scanner.py           # Delta report scanner
-    ├── cli_helpers.py       # CLI validation helpers
-    ├── text_utils.py        # Text processing utilities
-    └── constants.py         # Constants & configuration
+src/
+├── doc_diff_tracker/         # Core diff tracking
+│   ├── cli.py                    # CLI entry point (Typer-based)
+│   ├── models/                   # Data models
+│   │   ├── models.py            # Core delta report models
+│   │   ├── content.py           # Content block models
+│   │   └── html_diff.py         # Semantic diff models
+│   ├── extract/                  # Content extraction
+│   │   ├── content_extractor.py # HTML content extraction
+│   │   └── block_differ.py      # Block-level diff logic
+│   ├── compare/                  # Comparison logic
+│   │   ├── lineage.py           # Manifest comparison & delta detection
+│   │   └── semantic_diff.py     # Semantic content comparison
+│   ├── output/                   # Report generation
+│   │   └── reporting.py         # JSON report writers & summaries
+│   └── utils/                    # Utilities
+│       ├── inventory.py         # File scanning & hashing
+│       ├── security.py          # Path validation & security
+│       ├── scanner.py           # Delta report scanner
+│       ├── cli_helpers.py       # CLI validation helpers
+│       ├── text_utils.py        # Text processing utilities
+│       └── constants.py         # Constants & configuration
+└── qa_generation/            # QA generation (optional)
+    ├── cli.py                    # QA generator CLI
+    ├── config/                   # Configuration management
+    │   └── settings.py          # Settings and YAML loading
+    ├── models/                   # QA data models
+    │   ├── qa_pair.py           # QA pair and source document models
+    │   ├── provider_config.py   # LLM/embedding configuration
+    │   └── report_ingestion.py  # Diff report ingestion models
+    ├── generators/               # QA generation logic
+    │   ├── base.py              # Generator protocol & errors
+    │   └── ragas_generator.py   # RAGAS-based implementation
+    ├── llm/                      # LLM provider abstraction
+    │   └── provider.py          # LLM/embedding factory functions
+    ├── ingest/                   # Data ingestion
+    │   ├── diff_report_reader.py # Semantic diff report reader
+    │   └── snippet_extractor.py  # Snippet filtering & extraction
+    ├── output/                   # Output writers
+    │   └── qa_writer.py         # JSON/YAML QA pair writers
+    └── pipeline/                 # Orchestration
+        └── orchestrator.py      # Full QA generation pipeline
 ```
 
 ### Key Components
 
+**Core Diff Tracking:**
 - **Manifest Building** (`utils/inventory.py`): Scans directories, computes file hashes, builds manifests
 - **Delta Detection** (`compare/lineage.py`): Compares manifests, identifies changes, detects renames
 - **Content Extraction** (`extract/content_extractor.py`): Parses HTML, extracts semantic blocks (headings, paragraphs, code, tables, lists)
 - **Semantic Comparison** (`extract/block_differ.py`): Compares content blocks using fuzzy matching and similarity scoring
 - **Security** (`utils/security.py`): Path validation, symlink protection, output validation
+
+**QA Generation (Optional):**
+- **Pipeline Orchestration** (`qa_generation/pipeline/orchestrator.py`): End-to-end QA generation workflow
+- **Snippet Extraction** (`qa_generation/ingest/snippet_extractor.py`): Filters and extracts relevant text from diff reports
+- **RAGAS Generator** (`qa_generation/generators/ragas_generator.py`): Generates QA pairs using RAGAS framework
+- **LLM Provider** (`qa_generation/llm/provider.py`): Factory for LLM and embedding models (currently LangChain-based)
+- **Traceability** (`qa_generation/models/qa_pair.py`): Maintains full metadata linking QA pairs to source changes
 
 ## Development
 
@@ -230,10 +362,14 @@ Tests are not yet implemented (contributions welcome).
 
 Install with `uv sync --extra qa`:
 
-- **ragas** - QA test generation framework
-- **langchain-openai** - LLM integration for OpenAI models
-- **langchain-community** - Additional LLM provider support
+- **ragas>=0.4.3** - QA test generation framework
+- **langchain-core** - LangChain core functionality
+- **langchain-google-genai** - Google Gemini LLM/embeddings integration
+- **langchain-openai** - OpenAI LLM/embeddings integration
+- **langchain-community** - Community LLM providers
 - **pyyaml** - YAML configuration support
+
+> **Planned**: Migration from LangChain providers to LiteLLM for broader model support
 
 ## Security
 
