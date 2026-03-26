@@ -8,12 +8,35 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, model_validator
 
 from doc_diff_tracker.models import HTMLChange, HTMLDiffReport
+from doc_diff_tracker.utils.constants import MAX_METADATA_KEYS
+from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 
 # Valid change types from HTMLChange model
 ChangeType = Literal["text_change", "structure_change", "metadata_change"]
 
 
-def _validate_metadata_size(metadata: dict[str, Any], max_keys: int = 100) -> None:
+class SourceDocumentInfo(BaseModel):
+    """Traceability information from matched source document.
+
+    This model stores the extracted metadata that links a QA pair
+    back to its source document/change in the diff report.
+    """
+
+    topic_slug: str = Field(description="Topic slug from source document")
+    location: str | None = Field(
+        default=None, description="Location in source (e.g., section path)"
+    )
+    change_type: str | None = Field(
+        default=None, description="Type of change (text_change, structure_change, etc.)"
+    )
+    versions: tuple[str, str] | None = Field(
+        default=None, description="Source versions (old, new)"
+    )
+
+
+def _validate_metadata_size(
+    metadata: dict[str, Any], max_keys: int = MAX_METADATA_KEYS
+) -> None:
     """Validate metadata dictionary size and JSON-serializability.
 
     Args:
@@ -131,9 +154,6 @@ class QAPair(BaseModel):
     source_versions: tuple[str, str] | None = Field(
         default=None, description="(old_version, new_version) tuple"
     )
-    difficulty: str | None = Field(
-        default=None, description="Question difficulty from RAGAS (e.g., simple, reasoning)"
-    )
     question_type: str | None = Field(
         default=None,
         description="Question type from RAGAS (e.g., specific, abstract, comparative)",
@@ -206,7 +226,7 @@ class FilterConfig(BaseModel):
         default=50, ge=0, description="Skip snippets shorter than this"
     )
     max_text_length: int = Field(
-        default=10000, ge=0, description="Skip snippets longer than this"
+        default=10000, ge=1, description="Skip snippets longer than this"
     )
     change_types: set[ChangeType] = Field(
         default_factory=lambda: {"text_change"},
@@ -239,24 +259,6 @@ class FilterConfig(BaseModel):
                 f"max_similarity ({self.max_similarity})"
             )
         return self
-
-
-class LLMConfig(BaseModel):
-    """LLM configuration for QA generation."""
-
-    provider: str = Field(default="openai", description="LLM provider")
-    model: str = Field(default="gpt-4o", description="Model name")
-    temperature: float = Field(default=0.3, ge=0.0, le=2.0, description="Temperature")
-    max_tokens: int | None = Field(default=None, description="Max output tokens")
-
-
-class EmbeddingConfig(BaseModel):
-    """Embedding configuration for RAGAS."""
-
-    provider: str = Field(default="openai", description="Embedding provider")
-    model: str = Field(
-        default="text-embedding-3-small", description="Embedding model name"
-    )
 
 
 class GeneratorConfig(BaseModel):

@@ -1,14 +1,14 @@
 """Data models for QA generation."""
 
 from qa_generation.models.extraction_stats import SnippetExtractionStats
+from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 from qa_generation.models.qa_pair import (
-    EmbeddingConfig,
     FilterConfig,
     GeneratorConfig,
-    LLMConfig,
     QAPair,
     QASourceDocument,
     QueryDistribution,
+    SourceDocumentInfo,
 )
 from qa_generation.models.report_ingestion import (
     HTMLChange,
@@ -35,9 +35,11 @@ __all__ = [
     # QA pairs and config
     "QAPair",
     "QASourceDocument",
+    "SourceDocumentInfo",
     "GeneratorConfig",
     "QueryDistribution",
     "FilterConfig",
+    # Provider configs
     "LLMConfig",
     "EmbeddingConfig",
     # Extraction stats
