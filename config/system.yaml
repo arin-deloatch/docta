@@ -1,5 +1,5 @@
-# QA Generation Configuration Example
-# Uses Google Gemini for LLM and embeddings
+# QA Generation Configuration
+# For doc-diff-tracker QA generation pipeline
 
 # LLM Configuration
 llm:
@@ -15,7 +15,7 @@ embedding:
 
 # Generation Settings
 generation:
-  testset_size: 10              # Number of QA pairs to generate
+# testset_size: 10              # Number of QA pairs to generate
 
   # Query Distribution - must sum to 1.0
   query_distribution:
@@ -23,12 +23,20 @@ generation:
     abstract: 0         # MultiHopAbstractQuerySynthesizer (reasoning, multiple contexts)
     comparative: 0      # MultiHopSpecificQuerySynthesizer (comparisons, multiple contexts)
 
-
 # Filtering Configuration
-# Controls which documentation changes are used for QA generation
+# Controls which documentation changes/sections are used for QA generation
+filtering:
+  # Text length filters (in characters)
+  min_text_length: 100           # Skip snippets/sections shorter than this
+  max_text_length: 10000        # Skip snippets/sections longer than this
 
-  # Change types to include
+  # Similarity filters (0-100, for modified documents only)
+  min_similarity: 0.0           # Include changes with similarity >= this
+  max_similarity: 95.0          # Skip near-identical changes above this
+
+  # Change types to include (for modified documents)
   change_types:
     - text_change               # Text content changes (recommended)
     # - structure_change        # Structural changes (sections added/removed)
     # - metadata_change         # Metadata changes (titles, attributes)
+    # - document_added          # Added automatically for new documents
