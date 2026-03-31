@@ -1,6 +1,9 @@
 """Data models for QA generation."""
 
-from qa_generation.models.extraction_stats import SnippetExtractionStats
+from qa_generation.models.extraction_stats import (
+    AddedDocumentStats,
+    SnippetExtractionStats,
+)
 from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 from qa_generation.models.qa_pair import (
     FilterConfig,
@@ -44,4 +47,5 @@ __all__ = [
     "EmbeddingConfig",
     # Extraction stats
     "SnippetExtractionStats",
+    "AddedDocumentStats",
 ]

@@ -11,8 +11,8 @@ from doc_diff_tracker.models import HTMLChange, HTMLDiffReport
 from doc_diff_tracker.utils.constants import MAX_METADATA_KEYS
 from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 
-# Valid change types from HTMLChange model
-ChangeType = Literal["text_change", "structure_change", "metadata_change"]
+# Valid change types from HTMLChange model + document_added for new documents
+ChangeType = Literal["text_change", "structure_change", "metadata_change", "document_added"]
 
 
 class SourceDocumentInfo(BaseModel):
