@@ -143,6 +143,12 @@ def _generate_stratified_by_topic(
         requested=total_testset_size,
     )
 
+    # Fail if we had source documents but generated nothing
+    if not all_qa_pairs and source_documents:
+        raise RuntimeError(
+            f"Stratified generation failed: no QA pairs generated from {len(source_documents)} source documents across {num_topics} topics"
+        )
+
     return all_qa_pairs
 
 
