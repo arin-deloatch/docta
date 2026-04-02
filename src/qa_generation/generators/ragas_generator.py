@@ -9,9 +9,13 @@ import structlog
 from langchain_core.documents import Document
 from langchain_core.exceptions import OutputParserException
 from ragas.testset import TestsetGenerator
-from ragas.testset.synthesizers import (
+from ragas.testset.synthesizers.multi_hop.abstract import (
     MultiHopAbstractQuerySynthesizer,
+)
+from ragas.testset.synthesizers.multi_hop.specific import (
     MultiHopSpecificQuerySynthesizer,
+)
+from ragas.testset.synthesizers.single_hop.specific import (
     SingleHopSpecificQuerySynthesizer,
 )
 
@@ -314,15 +318,24 @@ class RAGASQAGenerator:
                 )
 
                 # Collect samples from this batch
-                if hasattr(testset, "to_pandas"):
-                    df = testset.to_pandas()
-                    if not df.empty:
-                        all_samples.extend(df.to_dict("records"))
-                        logger.debug(
-                            "batch_completed",
-                            batch_start=batch_start,
-                            samples_generated=len(df),
-                        )
+                try:
+                    to_pandas_method = getattr(testset, "to_pandas", None)
+                    if to_pandas_method is not None:
+                        df = to_pandas_method()
+                        if not df.empty:
+                            all_samples.extend(df.to_dict("records"))
+                            logger.debug(
+                                "batch_completed",
+                                batch_start=batch_start,
+                                samples_generated=len(df),
+                            )
+                except (AttributeError, TypeError) as e:
+                    logger.warning(
+                        "testset_conversion_failed",
+                        batch_start=batch_start,
+                        testset_type=type(testset).__name__,
+                        error=str(e)[:100],
+                    )
 
             except OutputParserException as e:
                 # This batch has problematic content - skip it
@@ -335,7 +348,17 @@ class RAGASQAGenerator:
                 failed_indices.extend(range(batch_start, batch_end))
 
             except Exception as e:
-                # Skip this batch
+                # Check for API errors that should be escalated
+                error_msg = str(e).lower()
+                if any(
+                    keyword in error_msg
+                    for keyword in ["api", "rate limit", "quota", "authentication", "401", "429"]
+                ):
+                    raise LLMError(
+                        f"LLM API error during batch processing ({type(e).__name__}). "
+                        "Check API key, rate limits, and quota."
+                    ) from e
+                # Skip this batch for other errors
                 logger.warning(
                     "batch_skipped_error",
                     batch_start=batch_start,
@@ -688,7 +711,7 @@ class RAGASQAGenerator:
         )
 
         # Build lookup by index for fast traceability matching
-        id_to_doc = {idx: doc for idx, doc in enumerate(source_documents)}
+        id_to_doc = dict(enumerate(source_documents))
 
         # Pattern to extract embedded doc ID: <!--DOC_ID:123-->
         doc_id_pattern = re.compile(DOC_ID_PATTERN_STR)

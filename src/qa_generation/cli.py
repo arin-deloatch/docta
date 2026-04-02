@@ -7,6 +7,7 @@ from pathlib import Path
 import structlog
 import typer
 
+from doc_diff_tracker.utils.logging import configure_logging
 from qa_generation.config.settings import load_settings
 from qa_generation.generators.base import (
     ConfigurationError,
@@ -88,11 +89,7 @@ def generate(
     Example:
         qa-generator generate report.json output.json --config qa_config.yaml
     """
-    # Configure logging
-    if verbose:
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(min_level=10)
-        )
+    configure_logging(verbose)
 
     try:
         # Load settings
@@ -233,11 +230,7 @@ def generate_from_added(
     Example:
         qa-generator generate-from-added delta_report.json qa_pairs.json
     """
-    # Configure logging
-    if verbose:
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(min_level=10)
-        )
+    configure_logging(verbose)
 
     try:
         # Load settings
@@ -386,11 +379,7 @@ def generate_unified(
     Example:
         qa-generator generate-unified delta_report.json semantic_diff_report.json qa_pairs.json
     """
-    # Configure logging
-    if verbose:
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(min_level=10)
-        )
+    configure_logging(verbose)
 
     try:
         # Load settings
@@ -441,7 +430,7 @@ def generate_unified(
     except ConfigurationError as e:
         typer.secho(f"Configuration Error: {e}", fg=typer.colors.RED, bold=True)
         typer.secho(
-            "\nHint: Check your config file and API keys (e.g., QA_OPENAI_API_KEY)",
+            "\nHint: Check your config file and API keys (e.g., OPENAI_API_KEY)",
             fg=typer.colors.YELLOW,
         )
         raise typer.Exit(1)

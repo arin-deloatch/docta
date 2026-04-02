@@ -24,6 +24,7 @@ from doc_diff_tracker.utils.cli_helpers import (
     validate_common_inputs,
     execute_manifest_comparison,
 )
+from doc_diff_tracker.utils.logging import configure_logging
 
 logger = structlog.get_logger(__name__)
 app = typer.Typer(help="Minimal documentation delta proof of concept")
@@ -47,6 +48,9 @@ def compare(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     allow_symlinks: bool = typer.Option(
         False, help="Allow processing symlinked files and directories"
     ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
+    ),
 ) -> None:
     """
     Compare two documentation corpus versions and generate a delta report.
@@ -54,6 +58,8 @@ def compare(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     This tool scans HTML documentation directories, identifies changes between
     versions, and produces a structured JSON report.
     """
+    configure_logging(verbose)
+
     try:
         logger.info(
             "compare_command_started",
@@ -126,6 +132,9 @@ def scan(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     allow_symlinks: bool = typer.Option(
         False, help="Allow processing symlinked files and directories"
     ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
+    ),
 ) -> None:
     """
     Scan a delta report and compare HTML documents using semantic content extraction.
@@ -135,6 +144,8 @@ def scan(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     blocks (headings, text, code, tables, lists). This approach ignores cosmetic
     HTML changes and focuses on actual content changes.
     """
+    configure_logging(verbose)
+
     try:
         logger.info(
             "scan_command_started",
@@ -222,6 +233,9 @@ def full_diff(  # pylint: disable=too-many-arguments,too-many-positional-argumen
     allow_symlinks: bool = typer.Option(
         False, help="Allow processing symlinked files and directories"
     ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
+    ),
 ) -> None:
     """
     Run full pipeline: compare manifests and perform semantic diff in one command.
@@ -230,6 +244,8 @@ def full_diff(  # pylint: disable=too-many-arguments,too-many-positional-argumen
     1. Builds manifests and generates delta report (identifies changed files)
     2. Performs semantic content extraction and comparison on changed documents
     """
+    configure_logging(verbose)
+
     try:
         logger.info(
             "full_diff_command_started",
