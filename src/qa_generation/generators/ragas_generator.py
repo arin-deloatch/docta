@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog
@@ -542,6 +543,7 @@ class RAGASQAGenerator:
                             location=matched_doc.location,
                             change_type=matched_doc.change_type,
                             versions=versions,
+                            metadata=matched_doc.metadata,
                         )
                     else:
                         logger.warning(
@@ -589,6 +591,7 @@ class RAGASQAGenerator:
                     location=doc.location,
                     change_type=doc.change_type,
                     versions=versions,
+                    metadata=doc.metadata,
                 )
         return None
 
@@ -643,7 +646,11 @@ class RAGASQAGenerator:
             ),
         )
         return SourceDocumentInfo(
-            topic_slug="unknown", location=None, change_type=None, versions=None
+            topic_slug="unknown",
+            location=None,
+            change_type=None,
+            versions=None,
+            metadata={},
         )
 
     def _build_qa_pair(self, row: Any, source_info: SourceDocumentInfo) -> QAPair:
@@ -667,6 +674,32 @@ class RAGASQAGenerator:
             "persona_name": row.get("persona_name"),
         }
         filtered_metadata = {k: v for k, v in metadata.items() if v is not None}
+
+        # Add timestamp
+        filtered_metadata["generated_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Add content metadata from source
+        # For modified content: change_description, old_content, new_content
+        # For added content: document_content
+        if source_info.metadata:
+            for key in [
+                "change_description",
+                "old_content",
+                "new_content",
+                "document_content",
+            ]:
+                if key in source_info.metadata:
+                    value = source_info.metadata[key]
+                    filtered_metadata[key] = value
+
+                    # Warn on large content fields (>5KB)
+                    if isinstance(value, str) and len(value) > 5000:
+                        logger.warning(
+                            "large_metadata_field",
+                            field=key,
+                            size_bytes=len(value),
+                            qa_pair_preview=question[:50],
+                        )
 
         return QAPair(
             question=question,

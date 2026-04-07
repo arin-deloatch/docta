@@ -32,6 +32,10 @@ class SourceDocumentInfo(BaseModel):
     versions: tuple[str, str] | None = Field(
         default=None, description="Source versions (old, new)"
     )
+    metadata: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional metadata from source document (e.g., content fields)",
+    )
 
 
 def _validate_metadata_size(
@@ -125,6 +129,12 @@ class QASourceDocument(BaseModel):
             metadata["versions"] = {"old": report.old_version, "new": report.new_version}
         if change.description:
             metadata["change_description"] = change.description
+
+        # Store old and new content for full traceability
+        if change.old_text:
+            metadata["old_content"] = change.old_text
+        if change.new_text:
+            metadata["new_content"] = change.new_text
 
         return cls(
             content=content,
