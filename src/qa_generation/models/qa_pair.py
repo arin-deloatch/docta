@@ -32,6 +32,10 @@ class SourceDocumentInfo(BaseModel):
     versions: tuple[str, str] | None = Field(
         default=None, description="Source versions (old, new)"
     )
+    metadata: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional metadata from source document (e.g., content fields)",
+    )
 
 
 def _validate_metadata_size(
