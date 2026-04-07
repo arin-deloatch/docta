@@ -102,7 +102,8 @@ def _section_to_source_document(
         "versions": {
             "added_in": version,
             "new": version,
-        }
+        },
+        "document_content": content,  # Store source content for traceability
     }
 
     return QASourceDocument(
