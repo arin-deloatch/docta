@@ -697,7 +697,7 @@ class RAGASQAGenerator:
                         logger.warning(
                             "large_metadata_field",
                             field=key,
-                            size_bytes=len(value),
+                            size_bytes=len(value.encode('utf-8')),
                             qa_pair_preview=question[:50],
                         )
 

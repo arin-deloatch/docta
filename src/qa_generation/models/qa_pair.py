@@ -37,6 +37,12 @@ class SourceDocumentInfo(BaseModel):
         description="Additional metadata from source document (e.g., content fields)",
     )
 
+    @model_validator(mode="after")
+    def validate_metadata(self) -> "SourceDocumentInfo":
+        """Validate metadata size and JSON-serializability."""
+        _validate_metadata_size(self.metadata)
+        return self
+
 
 def _validate_metadata_size(
     metadata: dict[str, Any], max_keys: int = MAX_METADATA_KEYS
