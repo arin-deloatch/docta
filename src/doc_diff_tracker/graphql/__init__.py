@@ -14,4 +14,28 @@ Main components:
     - config: Configuration loading from YAML and environment variables
 """
 
+from doc_diff_tracker.graphql.client import GraphQLClient
+from doc_diff_tracker.graphql.config import load_graphql_settings
+from doc_diff_tracker.graphql.fetcher import ContentFetcher
+from doc_diff_tracker.graphql.models import (
+    DocumentState,
+    DocumentVersion,
+    GraphQLPollingSettings,
+    PollingState,
+    QuerySetConfig,
+)
+from doc_diff_tracker.graphql.state import StateManager
+
 __version__ = "1.0.0"
+
+__all__ = [
+    "GraphQLClient",
+    "ContentFetcher",
+    "StateManager",
+    "load_graphql_settings",
+    "GraphQLPollingSettings",
+    "PollingState",
+    "DocumentState",
+    "DocumentVersion",
+    "QuerySetConfig",
+]
