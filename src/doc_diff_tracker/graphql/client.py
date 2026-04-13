@@ -21,6 +21,7 @@ class GraphQLClient:
 
     def __init__(
         self,
+        *,
         endpoint: HttpUrl,
         api_scope: str,
         client_id: SecretStr,

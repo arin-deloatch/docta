@@ -31,7 +31,8 @@ app = typer.Typer(help="Minimal documentation delta proof of concept")
 
 
 @app.command()
-def compare(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def compare(
+    *,
     old_root: str = typer.Option(..., help="Path to the older corpus root"),
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
     old_version: str = typer.Option("9", help="Label for older corpus version"),
@@ -112,7 +113,8 @@ def compare(  # pylint: disable=too-many-arguments,too-many-positional-arguments
 
 
 @app.command()
-def scan(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def scan(  # pylint: disable=too-many-locals
+    *,
     report: str = typer.Option(..., help="Path to delta report JSON file"),
     old_root: str = typer.Option(..., help="Path to the older corpus root"),
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
@@ -208,7 +210,8 @@ def scan(  # pylint: disable=too-many-arguments,too-many-positional-arguments
 
 
 @app.command()
-def full_diff(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+def full_diff(  # pylint: disable=too-many-locals
+    *,
     old_root: str = typer.Option(..., help="Path to the older corpus root"),
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
     old_version: str = typer.Option("9", help="Label for older corpus version"),

@@ -609,6 +609,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         self,
         row: Any,
         ground_truth: str,
+        *,
         doc_id_pattern: re.Pattern[str],
         id_to_doc: dict[int, QASourceDocument],
         source_documents: list[QASourceDocument],

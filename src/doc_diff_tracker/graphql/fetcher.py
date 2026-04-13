@@ -22,6 +22,7 @@ class ContentFetcher:
         self,
         get_access_token: Callable[[], str],
         download_dir: Path,
+        *,
         max_size_mb: int = 100,
         timeout: int = 60,
         max_workers: int = 10,
@@ -111,7 +112,7 @@ class ContentFetcher:
                         hash=doc_version.content_hash[:16],
                     )
 
-                except Exception as e:
+                except (requests.HTTPError, ValueError, OSError) as e:
                     failed += 1
                     doc_name = doc.name if doc else "unknown"
                     self.logger.error(
