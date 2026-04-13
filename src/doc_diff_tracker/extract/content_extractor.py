@@ -244,31 +244,17 @@ def _has_block_level_children(elem: Tag) -> bool:
     return False
 
 
-def _should_extract_text_from(
-    elem: Tag,
-) -> bool:  # pylint: disable=too-many-return-statements
+def _should_extract_text_from(elem: Tag) -> bool:
     """
     Determine if we should extract text from this element.
     Only extract from leaf content elements, not wrappers.
     """
     # Direct content elements we always extract
-    if elem.name == "p":
+    if elem.name == "p" or _is_rhel_paragraph(elem):
         return True
 
-    # RHEL-specific: <div class="para"> is a paragraph
-    if _is_rhel_paragraph(elem):
-        return True
-
-    # Don't extract from headings here - they're handled separately
-    if elem.name in HEADING_ELEMENTS:
-        return False
-
-    # Don't extract from containers - we'll get their children
-    if elem.name in CONTAINER_ELEMENTS:
-        return False
-
-    # Lists, tables, code, images, links have dedicated extractors
-    if elem.name in STRUCTURED_CONTENT_ELEMENTS:
+    # Skip elements with dedicated extractors or special handling
+    if elem.name in (HEADING_ELEMENTS | CONTAINER_ELEMENTS | STRUCTURED_CONTENT_ELEMENTS):
         return False
 
     # For other elements (span, etc.), extract if they have text but no block-level children
@@ -515,27 +501,10 @@ def _collect_all_elements(sections: list[Section]) -> tuple[
     return all_headings, all_code_blocks, all_tables, all_images, all_links
 
 
-def extract_document_content(
-    html_path: Path,
-) -> ExtractedDocument:  # pylint: disable=too-many-locals
-    """
-    Extract all content from an HTML document.
-
-    Args:
-        html_path: Path to HTML file
-
-    Returns:
-        ExtractedDocument with complete structured content
-
-    Raises:
-        FileNotFoundError: If the HTML file does not exist
-        PermissionError: If the file cannot be read
-        UnicodeDecodeError: If the file encoding is invalid
-    """
-    logger.debug("extracting_document_content", path=str(html_path))
-
+def _load_html_file(html_path: Path) -> str:
+    """Load HTML content from file with error handling."""
     try:
-        html = html_path.read_text(encoding="utf-8")
+        return html_path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
         logger.error("file_not_found", path=str(html_path))
         raise FileNotFoundError(f"HTML file not found: {html_path}") from exc
@@ -552,45 +521,54 @@ def extract_document_content(
             f"Failed to decode {html_path} as UTF-8: {e.reason}",
         ) from e
 
-    soup = BeautifulSoup(html, "lxml")
 
-    # Extract metadata
+def _calculate_full_text_stats(sections: list[Section]) -> tuple[str, int, int]:
+    """Calculate full text and statistics from sections."""
+    def _collect_section_text(section: Section, parts: list[str]) -> int:
+        """Recursively collect text from section and subsections."""
+        char_count = 0
+        if section.total_text:
+            parts.append(section.total_text)
+            char_count += section.total_char_count
+        for subsection in section.subsections:
+            char_count += _collect_section_text(subsection, parts)
+        return char_count
+
+    text_parts = []
+    char_count = sum(_collect_section_text(s, text_parts) for s in sections)
+    full_text = "\n\n".join(text_parts)
+    return full_text, char_count, len(full_text.split())
+
+
+def extract_document_content(html_path: Path) -> ExtractedDocument:
+    """
+    Extract all content from an HTML document.
+
+    Args:
+        html_path: Path to HTML file
+
+    Returns:
+        ExtractedDocument with complete structured content
+
+    Raises:
+        FileNotFoundError: If the HTML file does not exist
+        PermissionError: If the file cannot be read
+        UnicodeDecodeError: If the file encoding is invalid
+    """
+    logger.debug("extracting_document_content", path=str(html_path))
+
+    html = _load_html_file(html_path)
+    soup = BeautifulSoup(html, "lxml")
     metadata = _extract_metadata(soup)
 
-    # Build sections
     body = soup.find("body") or soup
     sections = _build_sections(body)
 
-    # Collect all elements
     all_headings, all_code_blocks, all_tables, all_images, all_links = (
         _collect_all_elements(sections)
     )
 
-    # Calculate full text and stats (must recurse into subsections)
-    def _collect_section_text(section: Section, parts: list[str]) -> int:
-        """Recursively collect text from section and subsections."""
-        char_count = 0
-
-        # Add section's own text
-        section_text = section.total_text
-        if section_text:
-            parts.append(section_text)
-            char_count += section.total_char_count
-
-        # Recurse into subsections
-        for subsection in section.subsections:
-            char_count += _collect_section_text(subsection, parts)
-
-        return char_count
-
-    full_text_parts = []
-    total_char_count = 0
-
-    for section in sections:
-        total_char_count += _collect_section_text(section, full_text_parts)
-
-    full_text = "\n\n".join(full_text_parts)
-    total_word_count = len(full_text.split())
+    full_text, total_char_count, total_word_count = _calculate_full_text_stats(sections)
 
     logger.debug(
         "document_content_extracted",
