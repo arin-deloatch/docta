@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  graphql-poller:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.poller
+    container_name: doc-diff-graphql-poller
+
+    # Environment variables (OAuth credentials)
+    environment:
+      - GRAPHQL_CLIENT_ID=${GRAPHQL_CLIENT_ID}
+      - GRAPHQL_CLIENT_SECRET=${GRAPHQL_CLIENT_SECRET}
+      - GRAPHQL_TOKEN_URL=${GRAPHQL_TOKEN_URL}
+      - APOLLOGRAPHQL_CLIENT_NAME=${APOLLOGRAPHQL_CLIENT_NAME:-doc-diff-tracker-poller}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+    # Volumes for persistence
+    volumes:
+      - ../../config/graphql_polling.yaml:/app/config/graphql_polling.yaml:ro
+      - poller-data:/app/data              # Fetched HTML content
+      - poller-state:/app/config/state     # State file + backups
+      - poller-output:/app/output          # Pipeline reports
+      - poller-tmp:/app/tmp                # Temporary workspace
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Log rotation (prevent unbounded growth)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+    # Network configuration
+    # For VPN access, you may need:
+    # network_mode: "host"
+    # or connect to a VPN network
+    networks:
+      - default
+
+volumes:
+  poller-data:
+    driver: local
+  poller-state:
+    driver: local
+  poller-output:
+    driver: local
+  poller-tmp:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

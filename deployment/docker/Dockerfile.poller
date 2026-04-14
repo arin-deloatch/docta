@@ -1,0 +1,53 @@
+# Multi-stage build for GraphQL Polling Daemon
+# Uses uv for dependency management
+
+FROM python:3.13-slim AS builder
+
+WORKDIR /app
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies only (without building the project)
+RUN uv sync --frozen --no-install-project
+
+# Copy source code and README
+COPY README.md ./
+COPY src/ ./src/
+COPY config/ ./config/
+
+# Now install the project itself
+RUN uv sync --frozen
+
+# Production stage
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Copy virtual environment and source from builder
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/src /app/src
+COPY --from=builder /app/config /app/config
+
+# Create non-root user
+RUN useradd -u 1000 -s /bin/false docpoller && \
+    mkdir -p /app/data /app/logs /app/config/state /app/output /app/tmp && \
+    chown -R docpoller:docpoller /app
+
+# Switch to non-root user
+USER docpoller
+
+# Add venv to PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Health check
+HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 \
+    CMD doc-diff-tracker daemon-status --config /app/config/graphql_polling.yaml || exit 1
+
+# Run poller in foreground (logs to stdout)
+CMD ["doc-diff-tracker", "daemon-start", \
+     "--config", "/app/config/graphql_polling.yaml", \
+     "--foreground"]
