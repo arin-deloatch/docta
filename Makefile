@@ -19,6 +19,9 @@ lint:
 	uv run ruff check src
 	uv run pylint src/
 
+lint-check:
+	uv run ruff check src
+
 format:
 	uv run black src
 
@@ -35,7 +38,7 @@ security:
 test:
 	uv run pytest
 
-pre-commit: format lint type-check security
+pre-commit: format-check lint type-check security
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
