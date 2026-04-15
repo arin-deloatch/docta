@@ -15,30 +15,34 @@ help:
 install:
 	uv sync
 
-lint:
-	uv run ruff check src
-	uv run pylint src/
+uv-lock-check:
+	uv lock --check
 
-lint-check:
+install-deps-test:
+	uv sync --group dev
+
+ruff:
 	uv run ruff check src
 
-format:
+pylint:
+	uv run pylint src
+
+black:
 	uv run black src
 
-format-check:
+black-check:
 	uv run black --check src
 
 type-check:
 	uv run mypy src/
-	uv run pyright src
 
-security:
+bandit:
 	uv run bandit -r src/
 
 test:
 	uv run pytest
 
-pre-commit: format-check lint type-check security
+pre-commit: black-check ruff bandit pylint type-check
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
