@@ -28,11 +28,11 @@ Clone the repository and install dependencies:
 
 ```bash
 git clone <repository-url>
-cd doc-diff-tracker
+cd docta
 uv sync
 ```
 
-This installs the `doc-diff-tracker` CLI command.
+This installs the `docta` CLI command.
 
 ## Quick Start
 
@@ -41,7 +41,7 @@ This installs the `doc-diff-tracker` CLI command.
 Run both manifest comparison and semantic diffing in one command:
 
 ```bash
-uv run doc-diff-tracker full-diff \
+uv run docta full-diff \
   --old-root data/rhel9_and_10/9 \
   --new-root data/rhel9_and_10/10 \
   --old-version "9" \
@@ -61,7 +61,7 @@ You can also run the stages separately:
 
 **Stage 1: Generate delta report**
 ```bash
-uv run doc-diff-tracker compare \
+uv run docta compare \
   --old-root data/rhel9_and_10/9 \
   --new-root data/rhel9_and_10/10 \
   --old-version "9" \
@@ -72,7 +72,7 @@ uv run doc-diff-tracker compare \
 
 **Stage 2: Semantic content comparison**
 ```bash
-uv run doc-diff-tracker scan \
+uv run docta scan \
   --report artifacts/delta_report.json \
   --old-root data/rhel9_and_10/9 \
   --new-root data/rhel9_and_10/10 \
@@ -447,7 +447,7 @@ The project follows a modular architecture:
 
 ```
 src/
-├── doc_diff_tracker/         # Core diff tracking
+├── docta/         # Core diff tracking
 │   ├── cli.py                    # CLI entry point (Typer-based)
 │   ├── models/                   # Data models
 │   │   ├── models.py            # Core delta report models
