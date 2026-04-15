@@ -30,7 +30,6 @@ qa = [
 
 [project.scripts]
 docta = "docta.cli:app"
-qa-generator = "qa_generation.cli:app"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
