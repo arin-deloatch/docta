@@ -6,6 +6,7 @@ Orchestrates the polling loop with:
 - Per-query-set execution with error isolation
 - Change detection and pipeline triggering
 """
+# pylint: disable=duplicate-code  # Similar error handling patterns to pipeline.py are intentional
 
 from __future__ import annotations
 
@@ -26,7 +27,7 @@ from docta.graphql.state import StateManager
 class PollingScheduler:
     """Orchestrates synchronous polling loop for GraphQL document monitoring."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         settings: GraphQLPollingSettings,
         client: GraphQLClient,
@@ -55,12 +56,12 @@ class PollingScheduler:
         signal.signal(signal.SIGTERM, self._signal_handler)
         signal.signal(signal.SIGINT, self._signal_handler)
 
-    def _signal_handler(self, signum: int, frame) -> None:  # type: ignore[no-untyped-def]
+    def _signal_handler(self, signum: int, frame) -> None:  # type: ignore[no-untyped-def]  # pylint: disable=unused-argument
         """Handle shutdown signals (SIGTERM, SIGINT).
 
         Args:
             signum: Signal number
-            frame: Current stack frame
+            frame: Current stack frame (required by signal handler signature, unused)
         """
         sig_name = signal.Signals(signum).name
         self.logger.info("shutdown_signal_received", signal=sig_name, signum=signum)
@@ -101,7 +102,7 @@ class PollingScheduler:
                 sleep_seconds = interval_minutes * 60
                 self._sleep_with_shutdown_check(sleep_seconds)
 
-            except Exception as e:  # pylint: disable=broad-exception-caught
+            except Exception as e:  # pylint: disable=broad-exception-caught  # Main polling loop must handle all errors
                 self.logger.error(
                     "poll_cycle_failed",
                     error=str(e),
@@ -160,7 +161,7 @@ class PollingScheduler:
 
             try:
                 self.poll_query_set(query_set, force_new=force_new)
-            except Exception as e:  # pylint: disable=broad-exception-caught
+            except Exception as e:  # pylint: disable=broad-exception-caught  # Continue with other query sets despite errors
                 self.logger.error(
                     "query_set_poll_failed",
                     query_set=query_set.name,
@@ -169,7 +170,7 @@ class PollingScheduler:
                 )
                 # Continue with other query sets instead of failing completely
 
-    def poll_query_set(
+    def poll_query_set(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self, query_set, force_new: bool = False  # type: ignore[no-untyped-def]
     ) -> None:
         """Poll a single query set and process changes.
@@ -214,7 +215,7 @@ class PollingScheduler:
                 count=len(fetched_nodes),
             )
             new_docs = fetched_nodes
-            modified_docs = []
+            modified_docs: list = []
         else:
             # Detect changes
             new_docs, modified_docs = self.state_manager.detect_changes(
@@ -316,7 +317,7 @@ class PollingScheduler:
                     self.pipeline_runner.run_for_new_documents(
                         query_set, new_urls, workspace_base
                     )
-                except Exception as e:  # pylint: disable=broad-exception-caught
+                except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
                     self.logger.error(
                         "new_documents_pipeline_failed",
                         query_set=query_set.name,
@@ -346,7 +347,7 @@ class PollingScheduler:
                     self.pipeline_runner.run_for_modified_documents(
                         query_set, modified_urls, workspace_base
                     )
-                except Exception as e:  # pylint: disable=broad-exception-caught
+                except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
                     self.logger.error(
                         "modified_documents_pipeline_failed",
                         query_set=query_set.name,

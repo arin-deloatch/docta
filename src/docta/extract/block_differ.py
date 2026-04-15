@@ -243,7 +243,7 @@ def _compare_headings(
     Returns:
         List of BlockChange for detected differences
     """
-    changes = []
+    changes: list[BlockChange] = []
 
     if old.text != new.text:
         changes.append(
@@ -287,7 +287,7 @@ def _compare_text_blocks(
     Returns:
         List of BlockChange for detected differences
     """
-    changes = []
+    changes: list[BlockChange] = []
 
     old_text = "\n".join(b.text for b in old_blocks)
     new_text = "\n".join(b.text for b in new_blocks)
@@ -367,7 +367,7 @@ def _compare_code_blocks(
     Returns:
         List of BlockChange for detected differences
     """
-    changes = []
+    changes: list[BlockChange] = []
 
     old_count = len(old_blocks)
     new_count = len(new_blocks)
@@ -434,7 +434,7 @@ def _compare_tables(
     Returns:
         List of BlockChange for detected differences
     """
-    changes = []
+    changes: list[BlockChange] = []
 
     old_count = len(old_tables)
     new_count = len(new_tables)
@@ -647,7 +647,7 @@ def _compare_sections(
     old_subsections_map = _build_section_map(old_section.subsections)
 
     # Track which sections have been matched
-    old_matched = set()
+    old_matched: set[int] = set()
 
     # Find matching subsections using fuzzy matching
     for new_subsection in new_section.subsections:
@@ -722,7 +722,7 @@ def compare_documents(
     old_sections_map = _build_section_map(old_doc.sections)
 
     # Track which sections have been matched
-    old_matched = set()
+    old_matched: set[int] = set()
 
     # Find matching sections using fuzzy matching
     for new_section in new_doc.sections:

@@ -118,7 +118,7 @@ def _extract_code_block(elem: Tag) -> CodeBlock:
 
 def _extract_list(elem: Tag) -> ListBlock:
     """Extract a list with all items."""
-    list_type = "ul" if elem.name == "ul" else "ol"
+    list_type = "ul" if elem.name == "ul" else "ol"  # type: ignore[arg-type]  # Literal typing checked at runtime
     items = []
     item_html = []
 
@@ -130,7 +130,7 @@ def _extract_list(elem: Tag) -> ListBlock:
     is_nested = bool(elem.find_all(["ul", "ol"]))
 
     return ListBlock(
-        list_type=list_type,
+        list_type=list_type,  # type: ignore[arg-type]  # Literal typing checked at runtime
         items=items,
         item_html=item_html,
         is_nested=is_nested,
@@ -417,7 +417,7 @@ def _build_sections(body: Tag) -> list[Section]:
     2. Walking the tree and assigning content to the current section
     3. Skipping nested content elements to avoid duplicates
     """
-    sections = []
+    sections: list[Section] = []
     current_section = Section(level=0)  # Preamble/intro
     section_stack = [current_section]
     extracted_ids: set[int] = set()
@@ -537,8 +537,8 @@ def _calculate_full_text_stats(sections: list[Section]) -> tuple[str, int, int]:
             char_count += _collect_section_text(subsection, parts)
         return char_count
 
-    text_parts = []
-    char_count = sum(_collect_section_text(s, text_parts) for s in sections)
+    text_parts: list[str] = []
+    char_count = sum(_collect_section_text(s, text_parts) for s in sections)  # type: ignore[misc]  # Generator returns int (char count)
     full_text = "\n\n".join(text_parts)
     return full_text, char_count, len(full_text.split())
 

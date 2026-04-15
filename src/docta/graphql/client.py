@@ -16,7 +16,7 @@ from docta.graphql.models import (
 )
 
 
-class GraphQLClient:
+class GraphQLClient:  # pylint: disable=too-many-instance-attributes
     """GraphQL client with OAuth 2.0 Client Credentials flow and Apollo headers."""
 
     def __init__(

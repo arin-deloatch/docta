@@ -113,8 +113,8 @@ class PipelineRunner:
                 )
 
                 # Lazy import to avoid loading QA dependencies unless needed
-                from qa_generation.config.settings import load_settings
-                from qa_generation.pipeline.orchestrator import (
+                from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+                from qa_generation.pipeline.orchestrator import (  # pylint: disable=import-outside-toplevel
                     generate_qa_from_delta_report,
                 )
 
@@ -172,7 +172,7 @@ class PipelineRunner:
                 shutil.rmtree(workspace)
                 self.logger.debug("workspace_cleaned", path=str(workspace))
 
-    def run_for_modified_documents(
+    def run_for_modified_documents(  # pylint: disable=too-many-locals
         self,
         query_set: QuerySetConfig,
         document_urls: list[str],
@@ -294,8 +294,8 @@ class PipelineRunner:
                 self.logger.info("running_qa_generation", query_set=query_set.name)
 
                 # Lazy import to avoid loading QA dependencies unless needed
-                from qa_generation.config.settings import load_settings
-                from qa_generation.pipeline.orchestrator import (
+                from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+                from qa_generation.pipeline.orchestrator import (  # pylint: disable=import-outside-toplevel
                     generate_qa_from_both_sources,
                 )
 
@@ -364,7 +364,7 @@ class PipelineRunner:
             output_path: Path to write delta report
             version_label: Version label for new documents
         """
-        from docta.models.models import DeltaReport, DocumentRecord
+        from docta.models.models import DeltaReport, DocumentRecord  # pylint: disable=import-outside-toplevel
 
         # Scan new directory for HTML files
         added_docs = []
