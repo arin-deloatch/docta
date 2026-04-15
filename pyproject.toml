@@ -1,5 +1,5 @@
 [project]
-name = "doc-diff-tracker"
+name = "docta"
 version = "0.1.0"
 description = "Minimal proof of concept for version-aware documentation delta tracking"
 readme = "README.md"
@@ -29,7 +29,7 @@ qa = [
 ]
 
 [project.scripts]
-doc-diff-tracker = "doc_diff_tracker.cli:app"
+docta = "docta.cli:app"
 qa-generator = "qa_generation.cli:app"
 
 [build-system]
