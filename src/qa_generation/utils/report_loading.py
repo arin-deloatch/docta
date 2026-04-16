@@ -50,7 +50,10 @@ def validate_and_load_json_report(
     # Read and parse JSON
     try:
         with report_path.open("r", encoding="utf-8") as f:
-            return json.load(f)  # type: ignore[no-any-return]  # json.load returns Any
+            parsed: Any = json.load(f)
+            if not isinstance(parsed, dict):
+                raise error_class(f"Invalid JSON root type in report file: expected object, got {type(parsed).__name__}")
+            return parsed
     except json.JSONDecodeError as e:
         logger.error(
             f"{log_context}_json_invalid",
