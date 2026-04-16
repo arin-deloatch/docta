@@ -106,19 +106,13 @@ def write_html_diff_report(report: HTMLDiffReport, output_path: str) -> None:
 def summarize_html_diff_report(report: HTMLDiffReport) -> str:
     """Generate a JSON summary of the HTML diff report."""
     # Aggregate change types using Counter
-    change_counts = Counter(
-        change.change_type for result in report.results for change in result.changes
-    )
+    change_counts = Counter(change.change_type for result in report.results for change in result.changes)
 
     # Aggregate error types using Counter
     error_counts = Counter(failure.error_type for failure in report.failed_comparisons)
 
     # Calculate average similarity
-    avg_similarity = (
-        sum(r.text_similarity for r in report.results) / len(report.results)
-        if report.results
-        else 0.0
-    )
+    avg_similarity = sum(r.text_similarity for r in report.results) / len(report.results) if report.results else 0.0
 
     payload = {
         "old_version": report.old_version,

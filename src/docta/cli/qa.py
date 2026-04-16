@@ -81,7 +81,9 @@ def generate(  # pylint: disable=too-many-arguments,too-many-positional-argument
     configure_logging(verbose)
 
     # Lazy imports to handle optional QA dependencies
-    from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+    from qa_generation.config.settings import (
+        load_settings,
+    )  # pylint: disable=import-outside-toplevel
     from qa_generation.pipeline import (  # pylint: disable=import-outside-toplevel
         generate_qa_from_report,
     )
@@ -190,7 +192,9 @@ def from_added(  # pylint: disable=too-many-arguments,too-many-positional-argume
     configure_logging(verbose)
 
     # Lazy imports to handle optional QA dependencies
-    from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+    from qa_generation.config.settings import (
+        load_settings,
+    )  # pylint: disable=import-outside-toplevel
     from qa_generation.pipeline import (  # pylint: disable=import-outside-toplevel
         generate_qa_from_delta_report,
     )
@@ -308,7 +312,9 @@ def unified(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     configure_logging(verbose)
 
     # Lazy imports to handle optional QA dependencies
-    from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+    from qa_generation.config.settings import (
+        load_settings,
+    )  # pylint: disable=import-outside-toplevel
     from qa_generation.pipeline import (  # pylint: disable=import-outside-toplevel
         generate_qa_from_both_sources,
     )

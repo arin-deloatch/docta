@@ -55,9 +55,7 @@ class QAGenerationSettings(BaseSettings):
     )
 
     # Generator configuration
-    testset_size: int = Field(
-        default=50, ge=1, le=10000, description="Number of QA pairs to generate"
-    )
+    testset_size: int = Field(default=50, ge=1, le=10000, description="Number of QA pairs to generate")
     seed: int | None = Field(
         default=None,
         ge=0,
@@ -68,45 +66,23 @@ class QAGenerationSettings(BaseSettings):
     # LLM configuration
     llm_provider: str = Field(default="openai", description="LLM provider name")
     llm_model: str = Field(default="gpt-4o", description="LLM model name")
-    llm_temperature: float = Field(
-        default=0.3, ge=0.0, le=2.0, description="LLM temperature"
-    )
-    llm_max_tokens: int | None = Field(
-        default=None, ge=1, description="Max output tokens"
-    )
+    llm_temperature: float = Field(default=0.3, ge=0.0, le=2.0, description="LLM temperature")
+    llm_max_tokens: int | None = Field(default=None, ge=1, description="Max output tokens")
 
     # Embedding configuration
-    embedding_provider: str = Field(
-        default="openai", description="Embedding provider name"
-    )
-    embedding_model: str = Field(
-        default="text-embedding-3-small", description="Embedding model name"
-    )
+    embedding_provider: str = Field(default="openai", description="Embedding provider name")
+    embedding_model: str = Field(default="text-embedding-3-small", description="Embedding model name")
 
     # Query distribution
-    query_dist_specific: float = Field(
-        default=0.5, ge=0.0, le=1.0, description="Specific query ratio"
-    )
-    query_dist_abstract: float = Field(
-        default=0.25, ge=0.0, le=1.0, description="Abstract query ratio"
-    )
-    query_dist_comparative: float = Field(
-        default=0.25, ge=0.0, le=1.0, description="Comparative query ratio"
-    )
+    query_dist_specific: float = Field(default=0.5, ge=0.0, le=1.0, description="Specific query ratio")
+    query_dist_abstract: float = Field(default=0.25, ge=0.0, le=1.0, description="Abstract query ratio")
+    query_dist_comparative: float = Field(default=0.25, ge=0.0, le=1.0, description="Comparative query ratio")
 
     # Filtering configuration
-    filter_min_text_length: int = Field(
-        default=50, ge=0, description="Minimum text length"
-    )
-    filter_max_text_length: int = Field(
-        default=10000, ge=1, description="Maximum text length"
-    )
-    filter_min_similarity: float = Field(
-        default=0.0, ge=0.0, le=100.0, description="Minimum similarity"
-    )
-    filter_max_similarity: float = Field(
-        default=95.0, ge=0.0, le=100.0, description="Maximum similarity"
-    )
+    filter_min_text_length: int = Field(default=50, ge=0, description="Minimum text length")
+    filter_max_text_length: int = Field(default=10000, ge=1, description="Maximum text length")
+    filter_min_similarity: float = Field(default=0.0, ge=0.0, le=100.0, description="Minimum similarity")
+    filter_max_similarity: float = Field(default=95.0, ge=0.0, le=100.0, description="Maximum similarity")
     filter_change_types: set[str] = Field(
         default_factory=lambda: {"text_change"},
         description="Change types to include",
@@ -115,11 +91,7 @@ class QAGenerationSettings(BaseSettings):
     @model_validator(mode="after")
     def validate_query_distribution_sum(self) -> "QAGenerationSettings":
         """Validate that query distribution sums to approximately 1.0."""
-        total = (
-            self.query_dist_specific
-            + self.query_dist_abstract
-            + self.query_dist_comparative
-        )
+        total = self.query_dist_specific + self.query_dist_abstract + self.query_dist_comparative
         if abs(total - 1.0) >= 0.01:
             raise ValueError(
                 f"Query distribution must sum to 1.0 (got {total:.3f}). "
@@ -133,30 +105,19 @@ class QAGenerationSettings(BaseSettings):
     def validate_filter_ranges(self) -> "QAGenerationSettings":
         """Validate that min values are less than or equal to max values."""
         if self.filter_min_text_length > self.filter_max_text_length:
-            raise ValueError(
-                f"filter_min_text_length ({self.filter_min_text_length}) must be <= "
-                f"filter_max_text_length ({self.filter_max_text_length})"
-            )
+            raise ValueError(f"filter_min_text_length ({self.filter_min_text_length}) must be <= " f"filter_max_text_length ({self.filter_max_text_length})")
         if self.filter_min_similarity > self.filter_max_similarity:
-            raise ValueError(
-                f"filter_min_similarity ({self.filter_min_similarity}) must be <= "
-                f"filter_max_similarity ({self.filter_max_similarity})"
-            )
+            raise ValueError(f"filter_min_similarity ({self.filter_min_similarity}) must be <= " f"filter_max_similarity ({self.filter_max_similarity})")
         return self
 
     def to_generator_config(self) -> GeneratorConfig:
         """Convert settings to GeneratorConfig model."""
         # Validate and convert set[str] to set[ChangeType] for type safety
-        valid_change_types = {"text_change", "structure_change", "metadata_change"}
+        valid_change_types = {"text_change", "structure_change", "metadata_change", "document_added"}
         invalid_types = self.filter_change_types - valid_change_types
         if invalid_types:
-            raise ValueError(
-                f"Invalid change types: {invalid_types}. "
-                f"Valid types: {valid_change_types}"
-            )
-        change_types: set[ChangeType] = {
-            cast(ChangeType, ct) for ct in self.filter_change_types
-        }
+            raise ValueError(f"Invalid change types: {invalid_types}. " f"Valid types: {valid_change_types}")
+        change_types: set[ChangeType] = {cast(ChangeType, ct) for ct in self.filter_change_types}
 
         return GeneratorConfig(
             testset_size=self.testset_size,
@@ -209,23 +170,13 @@ class QAGenerationSettings(BaseSettings):
 
         # Check if provider is supported
         if provider_lower not in key_map:
-            raise ValueError(
-                f"Unsupported provider: '{provider}'. "
-                f"Supported providers: {', '.join(key_map.keys())}"
-            )
+            raise ValueError(f"Unsupported provider: '{provider}'. " f"Supported providers: {', '.join(key_map.keys())}")
 
         # Check if API key is set
         secret_key = key_map[provider_lower]
         if secret_key is None:
-            env_var = (
-                "GOOGLE_API_KEY"
-                if provider_lower in ("gemini", "google")
-                else f"{provider_lower.upper()}_API_KEY"
-            )
-            raise ValueError(
-                f"API key not set for provider '{provider}'. "
-                f"Set {env_var} environment variable."
-            )
+            env_var = "GOOGLE_API_KEY" if provider_lower in ("gemini", "google") else f"{provider_lower.upper()}_API_KEY"
+            raise ValueError(f"API key not set for provider '{provider}'. " f"Set {env_var} environment variable.")
 
         return secret_key.get_secret_value()
 
@@ -285,10 +236,7 @@ class QAGenerationSettings(BaseSettings):
 
         env_var = env_var_map.get(provider_lower)
         if not env_var:
-            raise ValueError(
-                f"Unsupported provider: '{provider}'. "
-                f"Supported: {', '.join(env_var_map.keys())}"
-            )
+            raise ValueError(f"Unsupported provider: '{provider}'. " f"Supported: {', '.join(env_var_map.keys())}")
 
         return env_var
 
@@ -315,9 +263,7 @@ def load_settings_from_yaml(yaml_path: str | Path) -> dict[str, Any]:
     # YAML bomb protection - limit file size
     file_size = yaml_path.stat().st_size
     if file_size > MAX_FILE_SIZE_BYTES:
-        raise ValueError(
-            f"Config file too large: {file_size:,} bytes (max {MAX_FILE_SIZE_BYTES:,})"
-        )
+        raise ValueError(f"Config file too large: {file_size:,} bytes (max {MAX_FILE_SIZE_BYTES:,})")
 
     logger.info("loading_config_from_yaml", path=str(yaml_path), size_bytes=file_size)
 

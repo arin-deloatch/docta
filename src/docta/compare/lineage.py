@@ -70,13 +70,9 @@ def _find_exact_match(
 
     matched_paths.add(exact.relative_path)
     raw_equal = old_doc.raw_hash == exact.raw_hash
-    relationship = (
-        RelationshipType.UNCHANGED if raw_equal else RelationshipType.MODIFIED
-    )
+    relationship = RelationshipType.UNCHANGED if raw_equal else RelationshipType.MODIFIED
 
-    return _create_match_record(
-        old_doc, exact, relationship, confidence=1.0, topic_slug_similarity=100.0
-    )
+    return _create_match_record(old_doc, exact, relationship, confidence=1.0, topic_slug_similarity=100.0)
 
 
 def _find_best_rename_candidate(
@@ -158,9 +154,7 @@ def compare_manifests(  # pylint: disable=too-many-locals
             continue
 
         # Try rename detection
-        rename_result = _find_best_rename_candidate(
-            old_doc, new_docs, matched_paths, exclude_from_rename, rename_threshold
-        )
+        rename_result = _find_best_rename_candidate(old_doc, new_docs, matched_paths, exclude_from_rename, rename_threshold)
         if rename_result:
             best_doc, best_score = rename_result
             matched_paths.add(best_doc.relative_path)

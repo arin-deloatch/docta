@@ -24,7 +24,7 @@ from qa_generation.models.report_ingestion import (
     get_text_changes,
 )
 
-__all__ = [
+__all__ = [  # pylint: disable=duplicate-code
     # Report ingestion models
     "HTMLChange",
     "HTMLDiffResult",

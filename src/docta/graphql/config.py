@@ -12,9 +12,7 @@ from docta.utils.constants import MAX_FILE_SIZE_BYTES
 from docta.graphql.models import GraphQLPollingSettings
 
 
-def load_graphql_settings(
-    yaml_path: str | Path | None = None, **overrides
-) -> GraphQLPollingSettings:
+def load_graphql_settings(yaml_path: str | Path | None = None, **overrides) -> GraphQLPollingSettings:
     """Load GraphQL polling settings from YAML file and environment variables.
 
     Settings priority:
@@ -45,10 +43,7 @@ def load_graphql_settings(
         # Check file size (prevent YAML bombs)
         file_size = yaml_file.stat().st_size
         if file_size > MAX_FILE_SIZE_BYTES:
-            raise ValueError(
-                f"Configuration file too large: {file_size} bytes "
-                f"(max {MAX_FILE_SIZE_BYTES} bytes)"
-            )
+            raise ValueError(f"Configuration file too large: {file_size} bytes " f"(max {MAX_FILE_SIZE_BYTES} bytes)")
 
         # Parse YAML
         with open(yaml_file, encoding="utf-8") as f:

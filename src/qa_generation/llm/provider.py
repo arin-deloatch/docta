@@ -23,7 +23,7 @@ from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 logger = structlog.get_logger(__name__)
 
 
-def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[valid-type]  # RAGAS wrapper types not recognized by mypy
+def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[valid-type]  # LangchainLLMWrapper is a variable, not a type alias
     """Create a RAGAS LLM instance using LangChain providers.
 
     Currently supported providers: OpenAI, Google/Gemini
@@ -56,18 +56,12 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
                 ChatGoogleGenerativeAI,
             )
         except ImportError as e:
-            raise ImportError(
-                "langchain-google-genai is required for Google LLM. "
-                "Install with: uv add langchain-google-genai"
-            ) from e
+            raise ImportError("langchain-google-genai is required for Google LLM. Install with: uv add langchain-google-genai") from e
 
         # Verify API key is in environment (set by setup_environment())
         api_key = os.environ.get("GOOGLE_API_KEY")
         if not api_key:
-            raise ValueError(
-                "GOOGLE_API_KEY not found in environment. "
-                "Ensure setup_environment() was called before creating LLM."
-            )
+            raise ValueError("GOOGLE_API_KEY not found in environment. Ensure setup_environment() was called before creating LLM.")
 
         langchain_llm = ChatGoogleGenerativeAI(
             model=config.model,
@@ -75,7 +69,7 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
             max_output_tokens=config.max_tokens,
         )
 
-        return LangchainLLMWrapper(langchain_llm)
+        return LangchainLLMWrapper(langchain_llm)  # type: ignore[no-any-return]  # RAGAS wrapper returns not fully typed
 
     if provider_lower == "openai":
         try:
@@ -83,18 +77,12 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
                 ChatOpenAI,
             )
         except ImportError as e:
-            raise ImportError(
-                "langchain-openai is required for OpenAI LLM. "
-                "Install with: uv add langchain-openai"
-            ) from e
+            raise ImportError("langchain-openai is required for OpenAI LLM. Install with: uv add langchain-openai") from e
 
         # Verify API key is in environment (set by setup_environment())
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError(
-                "OPENAI_API_KEY not found in environment. "
-                "Ensure setup_environment() was called before creating LLM."
-            )
+            raise ValueError("OPENAI_API_KEY not found in environment. Ensure setup_environment() was called before creating LLM.")
 
         langchain_llm = ChatOpenAI(  # type: ignore[call-arg,assignment]  # max_tokens vs max_completion_tokens naming varies, multiple LLM types
             model=config.model,
@@ -102,15 +90,12 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
             max_tokens=config.max_tokens,
         )
 
-        return LangchainLLMWrapper(langchain_llm)  # type: ignore[arg-type]  # LangChain wrappers accept multiple chat model types
+        return LangchainLLMWrapper(langchain_llm)  # type: ignore[arg-type,no-any-return]  # LangChain wrappers accept multiple chat model types, RAGAS wrapper returns not fully typed
 
-    raise ValueError(
-        f"Unsupported LLM provider: '{config.provider}'. "
-        f"Supported providers: openai, google, gemini"
-    )
+    raise ValueError(f"Unsupported LLM provider: '{config.provider}'. Supported providers: openai, google, gemini")
 
 
-def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapper:  # type: ignore[valid-type]  # RAGAS wrapper types not recognized by mypy
+def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapper:  # type: ignore[valid-type]  # LangchainEmbeddingsWrapper is a variable, not a type alias
     """Create a RAGAS embeddings instance using LangChain providers.
 
     Currently supported providers: OpenAI, Google/Gemini
@@ -142,22 +127,16 @@ def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapp
                 GoogleGenerativeAIEmbeddings,
             )
         except ImportError as e:
-            raise ImportError(
-                "langchain-google-genai is required for Google embeddings. "
-                "Install with: uv add langchain-google-genai"
-            ) from e
+            raise ImportError("langchain-google-genai is required for Google embeddings. Install with: uv add langchain-google-genai") from e
 
         # Verify API key is in environment (set by setup_environment())
         api_key = os.environ.get("GOOGLE_API_KEY")
         if not api_key:
-            raise ValueError(
-                "GOOGLE_API_KEY not found in environment. "
-                "Ensure setup_environment() was called before creating embeddings."
-            )
+            raise ValueError("GOOGLE_API_KEY not found in environment. Ensure setup_environment() was called before creating embeddings.")
 
         langchain_embeddings = GoogleGenerativeAIEmbeddings(model=config.model)
 
-        return LangchainEmbeddingsWrapper(langchain_embeddings)
+        return LangchainEmbeddingsWrapper(langchain_embeddings)  # type: ignore[no-any-return]  # RAGAS wrapper returns not fully typed
 
     if provider_lower == "openai":
         try:
@@ -165,27 +144,18 @@ def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapp
                 OpenAIEmbeddings,
             )
         except ImportError as e:
-            raise ImportError(
-                "langchain-openai is required for OpenAI embeddings. "
-                "Install with: uv add langchain-openai"
-            ) from e
+            raise ImportError("langchain-openai is required for OpenAI embeddings. Install with: uv add langchain-openai") from e
 
         # Verify API key is in environment (set by setup_environment())
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError(
-                "OPENAI_API_KEY not found in environment. "
-                "Ensure setup_environment() was called before creating embeddings."
-            )
+            raise ValueError("OPENAI_API_KEY not found in environment. Ensure setup_environment() was called before creating embeddings.")
 
         langchain_embeddings = OpenAIEmbeddings(model=config.model)  # type: ignore[assignment]  # Multiple embedding provider types
 
-        return LangchainEmbeddingsWrapper(langchain_embeddings)  # type: ignore[arg-type]  # LangChain wrappers accept multiple embedding types
+        return LangchainEmbeddingsWrapper(langchain_embeddings)  # type: ignore[arg-type,no-any-return]  # LangChain wrappers accept multiple embedding types, RAGAS wrapper returns not fully typed
 
-    raise ValueError(
-        f"Unsupported embeddings provider: '{provider_lower}'. "
-        f"Supported providers: openai, google, gemini"
-    )
+    raise ValueError(f"Unsupported embeddings provider: '{provider_lower}'. Supported providers: openai, google, gemini")
 
 
 def create_testset_generator(settings: QAGenerationSettings) -> TestsetGenerator:

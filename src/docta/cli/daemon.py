@@ -1,5 +1,7 @@
 """GraphQL polling daemon management commands."""
 
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import sys
@@ -29,9 +31,7 @@ def start(
         "-f",
         help="Run in foreground (don't daemonize)",
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
-    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"),
 ) -> None:
     """Start the GraphQL polling daemon service.
 
@@ -63,14 +63,9 @@ def start(
 
     # Initialize all components from configuration
     config_path = Path(config)
-    settings, client, fetcher, state_manager, pipeline_runner, scheduler = (
-        create_polling_components(config_path)
-    )
+    settings, _client, _fetcher, _state_manager, _pipeline_runner, scheduler = create_polling_components(config_path)
 
-    typer.echo(
-        f"Loaded {len(settings.graphql.query_sets)} query set(s), "
-        f"polling interval: {settings.graphql.polling.interval_minutes} minutes"
-    )
+    typer.echo(f"Loaded {len(settings.graphql.query_sets)} query set(s), " f"polling interval: {settings.graphql.polling.interval_minutes} minutes")
 
     # Run scheduler
     if foreground:
@@ -130,7 +125,7 @@ def status(
         sys.exit(1)
 
     settings = load_graphql_settings(config_path)
-    state_file = Path(settings.state.file_path)
+    state_file = Path(settings.state.file_path)  # pylint: disable=no-member
 
     if not state_file.exists():
         typer.echo("No state file found - daemon has never run")
@@ -149,15 +144,13 @@ def status(
     typer.echo(f"Last updated: {state.last_updated}")
     typer.echo(f"Total query sets: {len(state.query_sets)}\n")
 
-    for query_set_name, query_state in state.query_sets.items():
+    for query_set_name, query_state in state.query_sets.items():  # pylint: disable=no-member
         typer.echo(f"Query Set: {query_set_name}")
         typer.echo(f"  Last poll: {query_state.last_poll or 'Never'}")
         typer.echo(f"  Last success: {query_state.last_success or 'Never'}")
         typer.echo(f"  Total documents: {query_state.stats.total_documents}")
         typer.echo(f"  Total polls: {query_state.stats.total_polls}")
-        typer.echo(
-            f"  Documents with changes: {query_state.stats.documents_with_changes}"
-        )
+        typer.echo(f"  Documents with changes: {query_state.stats.documents_with_changes}")
         typer.echo(f"  Total pipeline runs: {query_state.stats.total_pipeline_runs}")
         typer.echo()
 
@@ -167,17 +160,13 @@ def status(
 def run_once(
     *,
     config: str = typer.Option(..., help="Path to GraphQL polling configuration"),
-    query_set: str | None = typer.Option(
-        None, "--query-set", help="Optional: specific query set to poll"
-    ),
+    query_set: str | None = typer.Option(None, "--query-set", help="Optional: specific query set to poll"),
     force_new: bool = typer.Option(
         False,
         "--force-new",
         help="Treat all documents as NEW (skip diffing, run QA generation only)",
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
-    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"),
 ) -> None:
     """Run a single poll cycle for testing.
 
@@ -212,15 +201,11 @@ def run_once(
     if query_set:
         typer.echo(f"Query set filter: {query_set}")
     if force_new:
-        typer.echo(
-            "Force new mode: treating all documents as NEW (no diff generation)"
-        )
+        typer.echo("Force new mode: treating all documents as NEW (no diff generation)")
 
     # Initialize all components from configuration
     config_path = Path(config)
-    settings, client, fetcher, state_manager, pipeline_runner, scheduler = (
-        create_polling_components(config_path)
-    )
+    _settings, _client, _fetcher, _state_manager, _pipeline_runner, scheduler = create_polling_components(config_path)
 
     # Run single poll cycle
     typer.echo("\nStarting poll...")

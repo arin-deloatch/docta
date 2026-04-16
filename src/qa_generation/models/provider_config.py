@@ -18,6 +18,4 @@ class EmbeddingConfig(BaseModel):
     """Embedding configuration for RAGAS."""
 
     provider: str = Field(default="openai", description="Embedding provider")
-    model: str = Field(
-        default="text-embedding-3-small", description="Embedding model name"
-    )
+    model: str = Field(default="text-embedding-3-small", description="Embedding model name")

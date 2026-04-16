@@ -116,14 +116,7 @@ class Section(BaseModel):
     @property
     def has_content(self) -> bool:
         """Check if section has any content."""
-        return bool(
-            self.text_blocks
-            or self.code_blocks
-            or self.lists
-            or self.tables
-            or self.images
-            or self.subsections
-        )
+        return bool(self.text_blocks or self.code_blocks or self.lists or self.tables or self.images or self.subsections)
 
 
 class DocumentMetadata(BaseModel):

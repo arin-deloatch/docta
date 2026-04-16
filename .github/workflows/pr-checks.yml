@@ -33,7 +33,7 @@ jobs:
         run: uv sync
 
       - name: Check code formatting
-        run: make format-check
+        run: make black-check
 
   lint:
     name: Lint (Ruff + Pylint)

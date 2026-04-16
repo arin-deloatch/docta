@@ -58,9 +58,7 @@ def extract_clean_text(elem: Tag) -> str:
     return text
 
 
-def truncate_html_snippet(
-    html_snippet: str, max_length: int = MAX_HTML_SNIPPET_LENGTH
-) -> str:
+def truncate_html_snippet(html_snippet: str, max_length: int = MAX_HTML_SNIPPET_LENGTH) -> str:
     """
     Truncate HTML snippet to maximum length.
 

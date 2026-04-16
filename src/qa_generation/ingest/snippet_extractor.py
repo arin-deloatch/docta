@@ -239,8 +239,6 @@ def preview_extraction(
 
     # Count how many would pass filters using shared filtering logic
     # Note: full consumption required for accurate stats
-    stats.extracted_snippets = sum(
-        1 for _ in _iter_filtered_changes(report, config, stats)
-    )
+    stats.extracted_snippets = sum(1 for _ in _iter_filtered_changes(report, config, stats))
 
     return stats

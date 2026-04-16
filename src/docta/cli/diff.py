@@ -35,21 +35,11 @@ def compare(
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
     old_version: str = typer.Option("9", help="Label for older corpus version"),
     new_version: str = typer.Option("10", help="Label for newer corpus version"),
-    output: str = typer.Option(
-        "artifacts/report.json", help="Path to write JSON report"
-    ),
-    rename_threshold: float = typer.Option(
-        85.0, help="RapidFuzz threshold for rename candidates (0-100)"
-    ),
-    allow_overwrite: bool = typer.Option(
-        False, help="Allow overwriting existing output file"
-    ),
-    allow_symlinks: bool = typer.Option(
-        False, help="Allow processing symlinked files and directories"
-    ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
-    ),
+    output: str = typer.Option("artifacts/report.json", help="Path to write JSON report"),
+    rename_threshold: float = typer.Option(85.0, help="RapidFuzz threshold for rename candidates (0-100)"),
+    allow_overwrite: bool = typer.Option(False, help="Allow overwriting existing output file"),
+    allow_symlinks: bool = typer.Option(False, help="Allow processing symlinked files and directories"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"),
 ) -> None:
     """
     Compare two documentation corpus versions and generate a delta report.
@@ -68,12 +58,8 @@ def compare(
     )
 
     # Validate all inputs
-    old_version, new_version, rename_threshold = validate_pipeline_params(
-        old_version, new_version, rename_threshold
-    )
-    old_root_path, new_root_path = validate_common_inputs(
-        old_root, new_root, allow_symlinks
-    )
+    old_version, new_version, rename_threshold = validate_pipeline_params(old_version, new_version, rename_threshold)
+    old_root_path, new_root_path = validate_common_inputs(old_root, new_root, allow_symlinks)
     output_path = validate_output_path(
         output,
         allowed_extensions={".json"},
@@ -105,27 +91,13 @@ def scan(  # pylint: disable=too-many-locals
     report: str = typer.Option(..., help="Path to delta report JSON file"),
     old_root: str = typer.Option(..., help="Path to the older corpus root"),
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
-    output: str = typer.Option(
-        "artifacts/html_diff_report.json", help="Path to write JSON report"
-    ),
-    include_modified: bool = typer.Option(
-        True, help="Include modified documents in comparison"
-    ),
-    include_renamed: bool = typer.Option(
-        True, help="Include renamed candidates in comparison"
-    ),
-    max_docs: int | None = typer.Option(
-        None, help="Maximum number of documents to process (None for all)"
-    ),
-    allow_overwrite: bool = typer.Option(
-        False, help="Allow overwriting existing output file"
-    ),
-    allow_symlinks: bool = typer.Option(
-        False, help="Allow processing symlinked files and directories"
-    ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
-    ),
+    output: str = typer.Option("artifacts/html_diff_report.json", help="Path to write JSON report"),
+    include_modified: bool = typer.Option(True, help="Include modified documents in comparison"),
+    include_renamed: bool = typer.Option(True, help="Include renamed candidates in comparison"),
+    max_docs: int | None = typer.Option(None, help="Maximum number of documents to process (None for all)"),
+    allow_overwrite: bool = typer.Option(False, help="Allow overwriting existing output file"),
+    allow_symlinks: bool = typer.Option(False, help="Allow processing symlinked files and directories"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"),
 ) -> None:
     """
     Scan a delta report and compare HTML documents using semantic content extraction.
@@ -157,9 +129,7 @@ def scan(  # pylint: disable=too-many-locals
     if not report_path.is_file():
         raise ValueError(f"Report path is not a file: {report}")
 
-    old_root_path, new_root_path = validate_common_inputs(
-        old_root, new_root, allow_symlinks
-    )
+    old_root_path, new_root_path = validate_common_inputs(old_root, new_root, allow_symlinks)
 
     output_path = validate_output_path(
         output,
@@ -194,31 +164,17 @@ def full(  # pylint: disable=too-many-locals
     new_root: str = typer.Option(..., help="Path to the newer corpus root"),
     old_version: str = typer.Option("9", help="Label for older corpus version"),
     new_version: str = typer.Option("10", help="Label for newer corpus version"),
-    output_dir: str = typer.Option(
-        "artifacts", help="Directory to write output reports"
-    ),
-    rename_threshold: float = typer.Option(
-        85.0, help="RapidFuzz threshold for rename candidates (0-100)"
-    ),
-    include_modified: bool = typer.Option(
-        True, help="Include modified documents in semantic comparison"
-    ),
-    include_renamed: bool = typer.Option(
-        True, help="Include renamed candidates in semantic comparison"
-    ),
+    output_dir: str = typer.Option("artifacts", help="Directory to write output reports"),
+    rename_threshold: float = typer.Option(85.0, help="RapidFuzz threshold for rename candidates (0-100)"),
+    include_modified: bool = typer.Option(True, help="Include modified documents in semantic comparison"),
+    include_renamed: bool = typer.Option(True, help="Include renamed candidates in semantic comparison"),
     max_docs: int | None = typer.Option(
         None,
         help="Maximum number of documents to process in semantic scan (None for all)",
     ),
-    allow_overwrite: bool = typer.Option(
-        False, help="Allow overwriting existing output files"
-    ),
-    allow_symlinks: bool = typer.Option(
-        False, help="Allow processing symlinked files and directories"
-    ),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"
-    ),
+    allow_overwrite: bool = typer.Option(False, help="Allow overwriting existing output files"),
+    allow_symlinks: bool = typer.Option(False, help="Allow processing symlinked files and directories"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose logging (DEBUG level)"),
 ) -> None:
     """
     Run full pipeline: compare manifests and perform semantic diff in one command.
@@ -239,14 +195,10 @@ def full(  # pylint: disable=too-many-locals
     )
 
     # Validate all inputs
-    old_version, new_version, rename_threshold = validate_pipeline_params(
-        old_version, new_version, rename_threshold
-    )
+    old_version, new_version, rename_threshold = validate_pipeline_params(old_version, new_version, rename_threshold)
     if max_docs is not None and max_docs <= 0:
         raise ValueError("max_docs must be positive")
-    old_root_path, new_root_path = validate_common_inputs(
-        old_root, new_root, allow_symlinks
-    )
+    old_root_path, new_root_path = validate_common_inputs(old_root, new_root, allow_symlinks)
 
     # Create output directory
     output_dir_path = Path(output_dir)

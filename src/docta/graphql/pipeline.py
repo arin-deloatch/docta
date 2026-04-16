@@ -76,9 +76,7 @@ class PipelineRunner:
 
         try:
             # Copy new document versions to workspace
-            copied_count = self.state_manager.copy_current_versions_to_workspace(
-                query_set.name, document_urls, new_dir
-            )
+            copied_count = self.state_manager.copy_current_versions_to_workspace(query_set.name, document_urls, new_dir)
 
             if copied_count == 0:
                 self.logger.warning(
@@ -101,9 +99,7 @@ class PipelineRunner:
             # Create a minimal delta report for NEW documents
             # This is needed by the QA generation pipeline
             delta_report_path = output_dir / "delta_report_new.json"
-            self._create_minimal_delta_report_for_new(
-                new_dir, delta_report_path, query_set.pipeline.version_label
-            )
+            self._create_minimal_delta_report_for_new(new_dir, delta_report_path, query_set.pipeline.version_label)
 
             # Run QA generation for added documents only (if enabled)
             if query_set.pipeline.run_qa_generation:
@@ -113,7 +109,9 @@ class PipelineRunner:
                 )
 
                 # Lazy import to avoid loading QA dependencies unless needed
-                from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+                from qa_generation.config.settings import (
+                    load_settings,
+                )  # pylint: disable=import-outside-toplevel
                 from qa_generation.pipeline.orchestrator import (  # pylint: disable=import-outside-toplevel
                     generate_qa_from_delta_report,
                 )
@@ -144,9 +142,7 @@ class PipelineRunner:
                 )
 
             # Mark documents as processed
-            self.state_manager.mark_documents_pipeline_completed(
-                query_set.name, document_urls
-            )
+            self.state_manager.mark_documents_pipeline_completed(query_set.name, document_urls)
 
             self.logger.info(
                 "new_documents_pipeline_complete",
@@ -162,9 +158,7 @@ class PipelineRunner:
                 exc_info=True,
             )
             # DO NOT mark as processed - will retry on next poll
-            raise RuntimeError(
-                f"Pipeline failed for new documents in {query_set.name}: {e}"
-            ) from e
+            raise RuntimeError(f"Pipeline failed for new documents in {query_set.name}: {e}") from e
 
         finally:
             # Cleanup workspace
@@ -189,9 +183,7 @@ class PipelineRunner:
             RuntimeError: If pipeline execution fails
         """
         if not document_urls:
-            self.logger.info(
-                "no_modified_documents_to_process", query_set=query_set.name
-            )
+            self.logger.info("no_modified_documents_to_process", query_set=query_set.name)
             return
 
         self.logger.info(
@@ -210,12 +202,8 @@ class PipelineRunner:
 
         try:
             # Copy old and new versions to workspace
-            copied_old = self.state_manager.copy_previous_versions_to_workspace(
-                query_set.name, document_urls, old_dir
-            )
-            copied_new = self.state_manager.copy_current_versions_to_workspace(
-                query_set.name, document_urls, new_dir
-            )
+            copied_old = self.state_manager.copy_previous_versions_to_workspace(query_set.name, document_urls, old_dir)
+            copied_new = self.state_manager.copy_current_versions_to_workspace(query_set.name, document_urls, new_dir)
 
             if copied_old == 0 or copied_new == 0:
                 self.logger.warning(
@@ -241,9 +229,7 @@ class PipelineRunner:
             # Step 1: Run delta detection
             self.logger.info("running_delta_detection", query_set=query_set.name)
 
-            old_root, new_root = validate_common_inputs(
-                str(old_dir), str(new_dir), allow_symlinks=False
-            )
+            old_root, new_root = validate_common_inputs(str(old_dir), str(new_dir), allow_symlinks=False)
 
             delta_report = execute_manifest_comparison(
                 old_root_path=old_root,
@@ -294,7 +280,9 @@ class PipelineRunner:
                 self.logger.info("running_qa_generation", query_set=query_set.name)
 
                 # Lazy import to avoid loading QA dependencies unless needed
-                from qa_generation.config.settings import load_settings  # pylint: disable=import-outside-toplevel
+                from qa_generation.config.settings import (
+                    load_settings,
+                )  # pylint: disable=import-outside-toplevel
                 from qa_generation.pipeline.orchestrator import (  # pylint: disable=import-outside-toplevel
                     generate_qa_from_both_sources,
                 )
@@ -323,9 +311,7 @@ class PipelineRunner:
                 self.logger.info("qa_generation_disabled", query_set=query_set.name)
 
             # Mark documents as processed
-            self.state_manager.mark_documents_pipeline_completed(
-                query_set.name, document_urls
-            )
+            self.state_manager.mark_documents_pipeline_completed(query_set.name, document_urls)
 
             self.logger.info(
                 "modified_documents_pipeline_complete",
@@ -341,9 +327,7 @@ class PipelineRunner:
                 exc_info=True,
             )
             # DO NOT mark as processed - will retry on next poll
-            raise RuntimeError(
-                f"Pipeline failed for modified documents in {query_set.name}: {e}"
-            ) from e
+            raise RuntimeError(f"Pipeline failed for modified documents in {query_set.name}: {e}") from e
 
         finally:
             # Cleanup workspace
@@ -351,9 +335,7 @@ class PipelineRunner:
                 shutil.rmtree(workspace)
                 self.logger.debug("workspace_cleaned", path=str(workspace))
 
-    def _create_minimal_delta_report_for_new(
-        self, new_dir: Path, output_path: Path, version_label: str
-    ) -> None:
+    def _create_minimal_delta_report_for_new(self, new_dir: Path, output_path: Path, version_label: str) -> None:
         """Create a minimal delta report for NEW documents.
 
         This creates a delta report where all documents are marked as "added"
@@ -364,7 +346,10 @@ class PipelineRunner:
             output_path: Path to write delta report
             version_label: Version label for new documents
         """
-        from docta.models.models import DeltaReport, DocumentRecord  # pylint: disable=import-outside-toplevel
+        from docta.models.models import (
+            DeltaReport,
+            DocumentRecord,
+        )  # pylint: disable=import-outside-toplevel
 
         # Scan new directory for HTML files
         added_docs = []

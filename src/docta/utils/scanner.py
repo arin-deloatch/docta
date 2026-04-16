@@ -77,9 +77,7 @@ def _validate_file_size(file_path: Path) -> None:
     """
     file_size = file_path.stat().st_size
     if file_size > MAX_FILE_SIZE_BYTES:
-        raise ValueError(
-            f"File size ({file_size} bytes) exceeds maximum ({MAX_FILE_SIZE_BYTES} bytes)"
-        )
+        raise ValueError(f"File size ({file_size} bytes) exceeds maximum ({MAX_FILE_SIZE_BYTES} bytes)")
 
 
 def _process_single_match(
@@ -173,9 +171,7 @@ def process_changes(  # pylint: disable=too-many-arguments,too-many-positional-a
             failed_comparisons.append(processing_result.failure)
 
         if idx % 10 == 0:
-            logger.info(
-                "processing_progress", processed=idx, total=len(records_to_process)
-            )
+            logger.info("processing_progress", processed=idx, total=len(records_to_process))
 
     total_with_changes = sum(1 for r in results if r.changes)
 

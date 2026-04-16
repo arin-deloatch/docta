@@ -61,9 +61,7 @@ def validate_input_directory(
         try:
             path.relative_to(allowed_base.resolve())
         except ValueError as exc:
-            raise SecurityError(
-                f"Path '{path}' is outside allowed directory '{allowed_base}'"
-            ) from exc
+            raise SecurityError(f"Path '{path}' is outside allowed directory '{allowed_base}'") from exc
 
     return path
 
@@ -100,10 +98,7 @@ def validate_output_path(
         raise SecurityError(f"Invalid output path '{path_str}': {e}") from e
 
     if allowed_extensions and path.suffix.lower() not in allowed_extensions:
-        raise SecurityError(
-            f"Invalid extension '{path.suffix}'. "
-            f"Allowed: {', '.join(sorted(allowed_extensions))}"
-        )
+        raise SecurityError(f"Invalid extension '{path.suffix}'. " f"Allowed: {', '.join(sorted(allowed_extensions))}")
 
     if not path.parent.exists():
         raise SecurityError(f"Parent directory does not exist: {path.parent}")
@@ -139,9 +134,7 @@ def validate_file_for_reading(
         raise SecurityError(f"Cannot stat file {file_path}: {e}") from e
 
     if file_size > max_size:
-        raise SecurityError(
-            f"File too large: {file_path} ({file_size:,} bytes, max {max_size:,})"
-        )
+        raise SecurityError(f"File too large: {file_path} ({file_size:,} bytes, max {max_size:,})")
 
 
 def validate_float_parameter(

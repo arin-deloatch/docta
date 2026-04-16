@@ -4,6 +4,8 @@ Re-exports models from docta and provides filtering functions
 for preparing semantic diff reports for QA generation.
 """
 
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 from docta.models import HTMLChange, HTMLDiffReport, HTMLDiffResult
@@ -30,11 +32,7 @@ def get_text_changes(result: HTMLDiffResult) -> list[HTMLChange]:
     Returns:
         List of text changes that have old_text or new_text
     """
-    return [
-        change
-        for change in result.changes
-        if change.change_type == "text_change" and (change.old_text or change.new_text)
-    ]
+    return [change for change in result.changes if change.change_type == "text_change" and (change.old_text or change.new_text)]
 
 
 def filter_by_similarity(
@@ -59,29 +57,16 @@ def filter_by_similarity(
         ValueError: If similarity values are out of range or min > max
     """
     if not 0.0 <= min_similarity <= 100.0:
-        raise ValueError(
-            f"min_similarity must be between 0.0 and 100.0, got {min_similarity}"
-        )
+        raise ValueError(f"min_similarity must be between 0.0 and 100.0, got {min_similarity}")
     if not 0.0 <= max_similarity <= 100.0:
-        raise ValueError(
-            f"max_similarity must be between 0.0 and 100.0, got {max_similarity}"
-        )
+        raise ValueError(f"max_similarity must be between 0.0 and 100.0, got {max_similarity}")
     if min_similarity > max_similarity:
-        raise ValueError(
-            f"min_similarity ({min_similarity}) must be <= "
-            f"max_similarity ({max_similarity})"
-        )
+        raise ValueError(f"min_similarity ({min_similarity}) must be <= " f"max_similarity ({max_similarity})")
 
-    return [
-        result
-        for result in report.results
-        if min_similarity <= result.text_similarity <= max_similarity
-    ]
+    return [result for result in report.results if min_similarity <= result.text_similarity <= max_similarity]
 
 
-def filter_by_change_type(
-    result: HTMLDiffResult, change_types: set[str]
-) -> list[HTMLChange]:
+def filter_by_change_type(result: HTMLDiffResult, change_types: set[str]) -> list[HTMLChange]:
     """Filter changes by type.
 
     Args:

@@ -85,9 +85,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
             except ValueError as e:
                 raise ConfigurationError(f"Invalid configuration: {e}") from e
             except ImportError as e:
-                raise ConfigurationError(
-                    f"Missing dependencies: {e}. " "Install with: uv sync --extra qa"
-                ) from e
+                raise ConfigurationError(f"Missing dependencies: {e}. " "Install with: uv sync --extra qa") from e
         return self._generator
 
     @staticmethod
@@ -152,17 +150,11 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
             raise ConfigurationError(f"Failed to build query distribution: {e}") from e
 
         # Generate test set with robust error handling
-        testset, failed_doc_indices = self._generate_with_retry(
-            ragas_docs, config, ragas_dist
-        )
+        testset, failed_doc_indices = self._generate_with_retry(ragas_docs, config, ragas_dist)
 
         # Log failures if any
         if failed_doc_indices:
-            failed_topics = [
-                documents[idx].topic_slug
-                for idx in failed_doc_indices
-                if idx < len(documents)
-            ]
+            failed_topics = [documents[idx].topic_slug for idx in failed_doc_indices if idx < len(documents)]
             logger.warning(
                 "generation_skipped_problematic_documents",
                 failed_count=len(failed_doc_indices),
@@ -254,10 +246,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
                     "429",
                 ]
             ):
-                raise LLMError(
-                    f"LLM API error ({error_type}). "
-                    "Check API key, rate limits, and quota."
-                ) from e
+                raise LLMError(f"LLM API error ({error_type}). " "Check API key, rate limits, and quota.") from e
 
             # For other errors, try batch fallback
             logger.warning(
@@ -300,9 +289,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         for batch_start in range(0, len(ragas_docs), batch_size):
             batch_end = min(batch_start + batch_size, len(ragas_docs))
             batch_docs = ragas_docs[batch_start:batch_end]
-            batch_testset_size = max(
-                1, int(config.testset_size * len(batch_docs) / len(ragas_docs))
-            )
+            batch_testset_size = max(1, int(config.testset_size * len(batch_docs) / len(ragas_docs)))
 
             try:
                 logger.debug(
@@ -364,10 +351,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
                         "429",
                     ]
                 ):
-                    raise LLMError(
-                        f"LLM API error during batch processing ({type(e).__name__}). "
-                        "Check API key, rate limits, and quota."
-                    ) from e
+                    raise LLMError(f"LLM API error during batch processing ({type(e).__name__}). " "Check API key, rate limits, and quota.") from e
                 # Skip this batch for other errors
                 logger.warning(
                     "batch_skipped_error",
@@ -393,7 +377,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
                 def __init__(self, samples: list) -> None:
                     self.samples = samples
 
-                def to_pandas(self):  # type: ignore[no-untyped-def]  # Pandas DataFrame return type
+                def to_pandas(self):  # type: ignore[no-untyped-def]  # Pandas DataFrame return type  # pylint: disable=missing-function-docstring
                     import pandas as pd  # type: ignore[import-untyped]  # pylint: disable=import-outside-toplevel
 
                     return pd.DataFrame(self.samples)
@@ -401,15 +385,9 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
             return MockTestset(all_samples), failed_indices
 
         # If we got no samples at all, raise an error
-        raise QAGenerationError(
-            f"Failed to generate any QA pairs. "
-            f"All {len(ragas_docs)} documents failed processing. "
-            f"Try with fewer documents or simpler content."
-        )
+        raise QAGenerationError(f"Failed to generate any QA pairs. " f"All {len(ragas_docs)} documents failed processing. " f"Try with fewer documents or simpler content.")
 
-    def _convert_to_ragas_documents(
-        self, documents: list[QASourceDocument]
-    ) -> list[Document]:
+    def _convert_to_ragas_documents(self, documents: list[QASourceDocument]) -> list[Document]:
         """Convert QASourceDocument to RAGAS Document format.
 
         Embeds a unique document ID marker in the content for traceability matching,
@@ -442,9 +420,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         )
         return ragas_docs
 
-    def _build_query_distribution(
-        self, config: GeneratorConfig
-    ) -> list[tuple[Any, float]]:
+    def _build_query_distribution(self, config: GeneratorConfig) -> list[tuple[Any, float]]:
         """Build RAGAS query distribution from config.
 
         RAGAS expects a list of (Synthesizer, weight) tuples where weights
@@ -468,24 +444,22 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         generator = self._ensure_generator()
 
         # Build distribution list with synthesizers and weights
-        distribution: list[tuple] = []  # type: ignore[type-arg]  # RAGAS QueryDistribution typing is complex
+        distribution: list[tuple] = []  # type: ignore[type-arg]
 
         if config.query_distribution.specific > 0:
             specific_synth = SingleHopSpecificQuerySynthesizer(llm=generator.llm)
-            distribution.append((specific_synth, config.query_distribution.specific))  # type: ignore[arg-type]  # RAGAS tuple typing
+            distribution.append((specific_synth, config.query_distribution.specific))  # type: ignore[arg-type]
 
         if config.query_distribution.abstract > 0:
-            abstract_synth = MultiHopAbstractQuerySynthesizer(llm=generator.llm)  # type: ignore[assignment]  # Multiple synthesizer types used
-            distribution.append((abstract_synth, config.query_distribution.abstract))  # type: ignore[arg-type]  # RAGAS tuple typing
+            abstract_synth = MultiHopAbstractQuerySynthesizer(llm=generator.llm)  # type: ignore[assignment]
+            distribution.append((abstract_synth, config.query_distribution.abstract))  # type: ignore[arg-type]
 
         if config.query_distribution.comparative > 0:
-            comparative_synth = MultiHopSpecificQuerySynthesizer(llm=generator.llm)  # type: ignore[assignment]  # Multiple synthesizer types used
-            distribution.append((comparative_synth, config.query_distribution.comparative))  # type: ignore[arg-type]  # RAGAS tuple typing
+            comparative_synth = MultiHopSpecificQuerySynthesizer(llm=generator.llm)  # type: ignore[assignment]
+            distribution.append((comparative_synth, config.query_distribution.comparative))  # type: ignore[arg-type]
 
         if not distribution:
-            raise ValueError(
-                "Query distribution must have at least one non-zero weight"
-            )
+            raise ValueError("Query distribution must have at least one non-zero weight")
 
         logger.debug(
             "query_distribution_built",
@@ -585,10 +559,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         # Try to find which source document this answer came from
         for idx, doc in enumerate(source_documents):
             # Check if ground truth contains substantial content from this doc
-            if (
-                len(clean_ground_truth) > MIN_CONTENT_LENGTH_FOR_MATCHING
-                and clean_ground_truth[:QA_CONTENT_PREVIEW_LENGTH] in doc.content
-            ):
+            if len(clean_ground_truth) > MIN_CONTENT_LENGTH_FOR_MATCHING and clean_ground_truth[:QA_CONTENT_PREVIEW_LENGTH] in doc.content:
                 versions = self._extract_versions(doc.metadata)
 
                 logger.debug(
@@ -637,9 +608,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
 
         # Strategy 2: Try content similarity matching
         if ground_truth:
-            source_info = self._match_by_content(
-                ground_truth, doc_id_pattern, source_documents
-            )
+            source_info = self._match_by_content(ground_truth, doc_id_pattern, source_documents)
             if source_info:
                 return source_info
 
@@ -647,14 +616,8 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         logger.warning(
             "no_traceability_found",
             available_fields=list(row.keys()),
-            question_preview=(
-                row.get("user_input", "")[:QA_CONTENT_PREVIEW_LENGTH]
-                if row.get("user_input")
-                else None
-            ),
-            reference_preview=(
-                ground_truth[:QA_CONTENT_PREVIEW_LENGTH] if ground_truth else None
-            ),
+            question_preview=(row.get("user_input", "")[:QA_CONTENT_PREVIEW_LENGTH] if row.get("user_input") else None),
+            reference_preview=(ground_truth[:QA_CONTENT_PREVIEW_LENGTH] if ground_truth else None),
         )
         return SourceDocumentInfo(
             topic_slug="unknown",
@@ -723,9 +686,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
             metadata=filtered_metadata,
         )
 
-    def _convert_from_ragas_testset(
-        self, testset: Any, source_documents: list[QASourceDocument]
-    ) -> list[QAPair]:
+    def _convert_from_ragas_testset(self, testset: Any, source_documents: list[QASourceDocument]) -> list[QAPair]:
         """Convert RAGAS testset to QAPair objects.
 
         Extracts embedded document ID markers from contexts to restore traceability.
@@ -744,9 +705,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         try:
             df = testset.to_pandas()
         except AttributeError as e:
-            raise QAGenerationError(
-                f"RAGAS testset missing to_pandas() method: {e}"
-            ) from e
+            raise QAGenerationError(f"RAGAS testset missing to_pandas() method: {e}") from e
 
         logger.debug(
             "ragas_testset_columns",

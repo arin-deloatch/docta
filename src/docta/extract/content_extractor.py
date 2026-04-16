@@ -89,9 +89,7 @@ def _extract_code_block(elem: Tag) -> CodeBlock:
     """Extract a code block."""
     # For code, preserve exact whitespace (don't use extract_clean_text)
     code = elem.get_text()
-    is_inline = (
-        elem.name == "code" and elem.parent is not None and elem.parent.name != "pre"
-    )
+    is_inline = elem.name == "code" and elem.parent is not None and elem.parent.name != "pre"
 
     # Try to detect language from class
     language = None
@@ -149,9 +147,7 @@ def _extract_table(elem: Tag) -> TableBlock:
     if thead:
         header_row = thead.find("tr")
         if header_row:
-            headers = [
-                extract_clean_text(th) for th in header_row.find_all(["th", "td"])
-            ]
+            headers = [extract_clean_text(th) for th in header_row.find_all(["th", "td"])]
 
     # Extract all rows
     tbody = elem.find("tbody") or elem
@@ -254,9 +250,7 @@ def _should_extract_text_from(elem: Tag) -> bool:
         return True
 
     # Skip elements with dedicated extractors or special handling
-    if elem.name in (
-        HEADING_ELEMENTS | CONTAINER_ELEMENTS | STRUCTURED_CONTENT_ELEMENTS
-    ):
+    if elem.name in (HEADING_ELEMENTS | CONTAINER_ELEMENTS | STRUCTURED_CONTENT_ELEMENTS):
         return False
 
     # For other elements (span, etc.), extract if they have text but no block-level children
@@ -297,10 +291,7 @@ def _process_heading(
 
     # Validate section depth to prevent stack overflow
     if len(section_stack) >= MAX_SECTION_DEPTH:
-        raise ValueError(
-            f"Section nesting depth exceeds maximum ({MAX_SECTION_DEPTH}). "
-            "Document structure may be malformed."
-        )
+        raise ValueError(f"Section nesting depth exceeds maximum ({MAX_SECTION_DEPTH}). " "Document structure may be malformed.")
 
     # Create new section
     new_section = Section(
@@ -324,9 +315,7 @@ def _process_heading(
     return new_section
 
 
-def _process_text_content(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_text_content(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process text content element and add to current section."""
     extracted_ids.add(id(elem))
     text_block = _extract_text_block(elem)
@@ -334,9 +323,7 @@ def _process_text_content(
         current_section.text_blocks.append(text_block)
 
 
-def _process_code_block(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_code_block(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process code block element and add to current section."""
     extracted_ids.add(id(elem))
 
@@ -353,9 +340,7 @@ def _process_code_block(
         current_section.code_blocks.append(code_block)
 
 
-def _process_list(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_list(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process list element and add to current section."""
     extracted_ids.add(id(elem))
 
@@ -369,9 +354,7 @@ def _process_list(
         current_section.lists.append(list_block)
 
 
-def _process_table(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_table(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process table element and add to current section."""
     extracted_ids.add(id(elem))
 
@@ -385,9 +368,7 @@ def _process_table(
         current_section.tables.append(table_block)
 
 
-def _process_image(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_image(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process image element and add to current section."""
     extracted_ids.add(id(elem))
     image_block = _extract_image(elem)
@@ -395,9 +376,7 @@ def _process_image(
         current_section.images.append(image_block)
 
 
-def _process_link(
-    elem: Tag, current_section: Section | None, extracted_ids: set[int]
-) -> None:
+def _process_link(elem: Tag, current_section: Section | None, extracted_ids: set[int]) -> None:
     """Process link element and add to current section."""
     extracted_ids.add(id(elem))
     link_block = _extract_link(elem)
@@ -433,9 +412,7 @@ def _build_sections(body: Tag) -> list[Section]:
 
         # Heading - start new section
         if elem.name in HEADING_ELEMENTS:
-            current_section = _process_heading(
-                elem, sections, section_stack, extracted_ids
-            )
+            current_section = _process_heading(elem, sections, section_stack, extracted_ids)
 
         # Text content
         elif elem.name == "p" or _should_extract_text_from(elem):
@@ -567,9 +544,7 @@ def extract_document_content(html_path: Path) -> ExtractedDocument:
     body = soup.find("body") or soup
     sections = _build_sections(body)
 
-    all_headings, all_code_blocks, all_tables, all_images, all_links = (
-        _collect_all_elements(sections)
-    )
+    all_headings, all_code_blocks, all_tables, all_images, all_links = _collect_all_elements(sections)
 
     full_text, total_char_count, total_word_count = _calculate_full_text_stats(sections)
 

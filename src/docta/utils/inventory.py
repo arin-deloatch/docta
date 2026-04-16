@@ -25,19 +25,14 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def iter_html_docs(
-    root: Path, allow_symlinks: bool = False
-) -> Generator[Path, None, None]:
+def iter_html_docs(root: Path, allow_symlinks: bool = False) -> Generator[Path, None, None]:
     """Yield HTML files found recursively under root."""
     file_count = 0
 
     for html_path in root.rglob("*.html"):
         file_count += 1
         if file_count > MAX_FILES_TO_PROCESS:
-            raise SecurityError(
-                f"Too many files to process (limit: {MAX_FILES_TO_PROCESS:,}). "
-                "Consider using a more specific directory."
-            )
+            raise SecurityError(f"Too many files to process (limit: {MAX_FILES_TO_PROCESS:,}). " "Consider using a more specific directory.")
 
         if not allow_symlinks and html_path.is_symlink():
             logger.debug("skipping_symlinked_file", path=str(html_path))
@@ -46,9 +41,7 @@ def iter_html_docs(
         yield html_path
 
 
-def _process_html_file(
-    html_path: Path, root_path: Path, version: str
-) -> DocumentRecord | None:
+def _process_html_file(html_path: Path, root_path: Path, version: str) -> DocumentRecord | None:
     """
     Process a single HTML file into a DocumentRecord.
 

@@ -33,13 +33,7 @@ class SnippetExtractionStats(BaseModel):
     @property
     def total_filtered(self) -> int:
         """Total number of filtered items."""
-        return (
-            self.filtered_by_type
-            + self.filtered_by_length
-            + self.filtered_by_similarity
-            + self.filtered_no_text
-            + self.filtered_no_topic_slug
-        )
+        return self.filtered_by_type + self.filtered_by_length + self.filtered_by_similarity + self.filtered_no_text + self.filtered_no_topic_slug
 
     @property
     def extraction_rate(self) -> float:
@@ -74,11 +68,7 @@ class AddedDocumentStats(BaseModel):
     @property
     def total_filtered(self) -> int:
         """Total number of filtered items."""
-        return (
-            self.filtered_by_length
-            + self.filtered_no_content
-            + self.filtered_invalid_html
-        )
+        return self.filtered_by_length + self.filtered_no_content + self.filtered_invalid_html
 
     @property
     def conversion_rate(self) -> float:

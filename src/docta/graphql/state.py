@@ -286,11 +286,7 @@ class StateManager:
             )
         else:
             # Delete old previous_version HTML file (keep only 2 versions max)
-            if (
-                self.cleanup_files
-                and doc_state.previous_version
-                and doc_state.previous_version.local_path
-            ):
+            if self.cleanup_files and doc_state.previous_version and doc_state.previous_version.local_path:
                 old_file = Path(doc_state.previous_version.local_path)
                 if old_file.exists():
                     old_file.unlink()

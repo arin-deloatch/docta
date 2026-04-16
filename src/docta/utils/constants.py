@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import Literal
 
 # File processing limits
-MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB per file
-MAX_REPORT_SIZE_BYTES = 100 * 1024 * 1024  # 100MB for aggregate reports
+BYTES_PER_MB = 1024 * 1024  # Conversion factor: MB to bytes
+DOWNLOAD_CHUNK_SIZE_BYTES = 8192  # HTTP download chunk size
+MAX_FILE_SIZE_BYTES = 10 * BYTES_PER_MB  # 10MB per file
+MAX_REPORT_SIZE_BYTES = 100 * BYTES_PER_MB  # 100MB for aggregate reports
 MAX_FILES_TO_PROCESS = 10_000  # Prevent processing excessive files
 
 # Allowed file extensions
@@ -95,14 +97,10 @@ MAX_PREVIEW_BLOCKS = 3  # Maximum number of blocks to include in HTML snippets
 SECTION_MATCH_THRESHOLD = 85.0  # Minimum similarity for section matching (0-100)
 
 # Security constants
-FORBIDDEN_SYSTEM_DIRS = frozenset(
-    {"/etc", "/sys", "/proc", "/dev", "/boot", "/root"}
-)  # System directories forbidden for writing
+FORBIDDEN_SYSTEM_DIRS = frozenset({"/etc", "/sys", "/proc", "/dev", "/boot", "/root"})  # System directories forbidden for writing
 
 # Document comparison constants
-DEFAULT_EXCLUDE_FROM_RENAME = frozenset(
-    {"release_notes"}
-)  # Topic slugs to exclude from rename detection by default
+DEFAULT_EXCLUDE_FROM_RENAME = frozenset({"release_notes"})  # Topic slugs to exclude from rename detection by default
 
 # HTML element sets for content extraction
 CONTAINER_ELEMENTS = frozenset({"div", "section", "article", "main", "body", "html"})
@@ -126,9 +124,7 @@ BLOCK_LEVEL_ELEMENTS = frozenset(
 HEADING_ELEMENTS = frozenset({"h1", "h2", "h3", "h4", "h5", "h6"})
 LIST_ELEMENTS = frozenset({"ul", "ol"})
 CODE_ELEMENTS = frozenset({"pre", "code"})
-STRUCTURED_CONTENT_ELEMENTS = frozenset(
-    {"ul", "ol", "table", "pre", "code", "img", "a"}
-)
+STRUCTURED_CONTENT_ELEMENTS = frozenset({"ul", "ol", "table", "pre", "code", "img", "a"})
 BLOCK_EXTRACTION_ELEMENTS = frozenset({"p", "pre", "ul", "ol", "table", "code"})
 
 # QA Generation constants

@@ -49,9 +49,7 @@ def write_qa_pairs_json(
 
     # Check if file exists
     if not allow_overwrite and output_path.exists():
-        raise QAWriteError(
-            f"Output file already exists (use allow_overwrite=True): {output_path}"
-        )
+        raise QAWriteError(f"Output file already exists (use allow_overwrite=True): {output_path}")
 
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -120,9 +118,7 @@ def write_qa_pairs_yaml(
 
     # Check if file exists
     if not allow_overwrite and output_path.exists():
-        raise QAWriteError(
-            f"Output file already exists (use allow_overwrite=True): {output_path}"
-        )
+        raise QAWriteError(f"Output file already exists (use allow_overwrite=True): {output_path}")
 
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -196,10 +192,7 @@ def write_qa_pairs(
         elif suffix in {".yaml", ".yml"}:
             output_format = "yaml"
         else:
-            raise ValueError(
-                f"Cannot auto-detect format from extension '{suffix}'. "
-                "Specify format='json' or format='yaml'"
-            )
+            raise ValueError(f"Cannot auto-detect format from extension '{suffix}'. " "Specify format='json' or format='yaml'")
 
     # Validate empty list
     if not qa_pairs:

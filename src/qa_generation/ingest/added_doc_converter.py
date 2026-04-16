@@ -213,9 +213,7 @@ def _get_topic_slug_from_document(
     source_path_str = str(Path(extracted_doc.source_path).resolve())
 
     for doc_record in delta_report.added:
-        expected_path = str(
-            (Path(doc_record.root) / doc_record.relative_path).resolve()
-        )
+        expected_path = str((Path(doc_record.root) / doc_record.relative_path).resolve())
         if source_path_str == expected_path:
             return doc_record.topic_slug
 
@@ -288,10 +286,7 @@ def convert_added_documents(
             "document_sections_extracted",
             topic_slug=topic_slug,
             sections=len(extracted_doc.sections),
-            source_docs_created=sum(
-                len(_flatten_sections(s, topic_slug, delta_report.new_version))
-                for s in extracted_doc.sections
-            ),
+            source_docs_created=sum(len(_flatten_sections(s, topic_slug, delta_report.new_version)) for s in extracted_doc.sections),
         )
 
     # Apply text length filtering

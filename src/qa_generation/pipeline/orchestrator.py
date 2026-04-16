@@ -150,10 +150,7 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
 
     # Fail if we had source documents but generated nothing
     if not all_qa_pairs and source_documents:
-        raise RuntimeError(
-            f"Stratified generation failed: no QA pairs generated from "
-            f"{len(source_documents)} source documents across {num_topics} topics"
-        )
+        raise RuntimeError(f"Stratified generation failed: no QA pairs generated from " f"{len(source_documents)} source documents across {num_topics} topics")
 
     return all_qa_pairs
 
@@ -224,12 +221,7 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
     )
 
     if not snippets:
-        raise ValueError(
-            f"No snippets extracted from report. "
-            f"Total changes: {stats.total_changes}, "
-            f"Filtered: {stats.total_filtered}. "
-            f"Try adjusting filter settings."
-        )
+        raise ValueError(f"No snippets extracted from report. " f"Total changes: {stats.total_changes}, " f"Filtered: {stats.total_filtered}. " f"Try adjusting filter settings.")
 
     # Step 3: Snippets are already QASourceDocument objects
     source_documents = snippets
@@ -284,9 +276,7 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
     logger.info(
         "qa_pairs_generated",
         num_pairs=len(qa_pairs),
-        avg_question_length=(
-            sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0
-        ),
+        avg_question_length=(sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0),
     )
 
     # Step 5: Write output
@@ -362,19 +352,13 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     )
 
     if not delta_report.added:
-        raise ValueError(
-            f"No added documents found in delta report. "
-            f"Modified: {len(delta_report.modified)}, "
-            f"Renamed: {len(delta_report.renamed_candidates)}"
-        )
+        raise ValueError(f"No added documents found in delta report. " f"Modified: {len(delta_report.modified)}, " f"Renamed: {len(delta_report.renamed_candidates)}")
 
     # Step 2: Extract added documents (parse HTML)
     logger.info("extracting_added_documents")
     generator_config = settings.to_generator_config()
     stats = AddedDocumentStats()
-    extracted_docs = extract_added_documents(
-        delta_report, generator_config.filtering, stats
-    )
+    extracted_docs = extract_added_documents(delta_report, generator_config.filtering, stats)
 
     logger.info(
         "added_documents_extracted",
@@ -383,17 +367,11 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     )
 
     if not extracted_docs:
-        raise ValueError(
-            f"No added documents could be extracted. "
-            f"Total added: {len(delta_report.added)}, "
-            f"Filtered invalid HTML: {stats.filtered_invalid_html}"
-        )
+        raise ValueError(f"No added documents could be extracted. " f"Total added: {len(delta_report.added)}, " f"Filtered invalid HTML: {stats.filtered_invalid_html}")
 
     # Step 3: Convert sections to QASourceDocument
     logger.info("converting_sections_to_source_documents")
-    source_documents = convert_added_documents(
-        extracted_docs, delta_report, generator_config.filtering, stats
-    )
+    source_documents = convert_added_documents(extracted_docs, delta_report, generator_config.filtering, stats)
 
     logger.info(
         "source_documents_created",
@@ -461,9 +439,7 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     logger.info(
         "qa_pairs_generated",
         num_pairs=len(qa_pairs),
-        avg_question_length=(
-            sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0
-        ),
+        avg_question_length=(sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0),
     )
 
     # Step 5: Write output
@@ -548,9 +524,7 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
     )
 
     logger.info("extracting_snippets_from_modified_documents")
-    modified_sources, snippet_stats = extract_snippets(
-        diff_report, generator_config.filtering
-    )
+    modified_sources, snippet_stats = extract_snippets(diff_report, generator_config.filtering)
     logger.info(
         "modified_snippets_extracted",
         extracted=snippet_stats.extracted_snippets,
@@ -569,14 +543,10 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
     if delta_report.added:
         logger.info("extracting_added_documents")
         added_stats = AddedDocumentStats()
-        extracted_docs = extract_added_documents(
-            delta_report, generator_config.filtering, added_stats
-        )
+        extracted_docs = extract_added_documents(delta_report, generator_config.filtering, added_stats)
 
         logger.info("converting_added_document_sections")
-        added_sources = convert_added_documents(
-            extracted_docs, delta_report, generator_config.filtering, added_stats
-        )
+        added_sources = convert_added_documents(extracted_docs, delta_report, generator_config.filtering, added_stats)
 
         logger.info(
             "added_documents_processed",
@@ -596,11 +566,7 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
     )
 
     if not all_sources:
-        raise ValueError(
-            f"No source documents after merging. "
-            f"Modified sources: {len(modified_sources)}, "
-            f"Added sources: {len(added_sources)}"
-        )
+        raise ValueError(f"No source documents after merging. " f"Modified sources: {len(modified_sources)}, " f"Added sources: {len(added_sources)}")
 
     # Limit documents if requested
     if num_documents is not None:
@@ -652,9 +618,7 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
     logger.info(
         "qa_pairs_generated",
         num_pairs=len(qa_pairs),
-        avg_question_length=(
-            sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0
-        ),
+        avg_question_length=(sum(p.question_length for p in qa_pairs) / len(qa_pairs) if qa_pairs else 0),
     )
 
     # Step 5: Write output

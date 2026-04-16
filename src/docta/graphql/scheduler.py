@@ -6,6 +6,7 @@ Orchestrates the polling loop with:
 - Per-query-set execution with error isolation
 - Change detection and pipeline triggering
 """
+
 # pylint: disable=duplicate-code  # Similar error handling patterns to pipeline.py are intentional
 
 from __future__ import annotations
@@ -114,9 +115,7 @@ class PollingScheduler:
 
         self.logger.info("polling_stopped_gracefully")
 
-    def run_once(
-        self, query_set_filter: str | None = None, force_new: bool = False
-    ) -> None:
+    def run_once(self, query_set_filter: str | None = None, force_new: bool = False) -> None:
         """Run a single poll cycle (for testing/debugging).
 
         Args:
@@ -137,9 +136,7 @@ class PollingScheduler:
         self.poll_all_query_sets(query_set_filter=query_set_filter, force_new=force_new)
         self.logger.info("single_poll_cycle_complete")
 
-    def poll_all_query_sets(
-        self, query_set_filter: str | None = None, force_new: bool = False
-    ) -> None:
+    def poll_all_query_sets(self, query_set_filter: str | None = None, force_new: bool = False) -> None:
         """Poll all enabled query sets.
 
         Args:
@@ -202,9 +199,7 @@ class PollingScheduler:
         )
 
         if not fetched_nodes:
-            self.logger.warning(
-                "no_documents_returned_from_graphql", query_set=query_set.name
-            )
+            self.logger.warning("no_documents_returned_from_graphql", query_set=query_set.name)
             return
 
         # Handle force_new mode
@@ -218,17 +213,11 @@ class PollingScheduler:
             modified_docs: list = []
         else:
             # Detect changes
-            new_docs, modified_docs = self.state_manager.detect_changes(
-                query_set.name, fetched_nodes, state
-            )
+            new_docs, modified_docs = self.state_manager.detect_changes(query_set.name, fetched_nodes, state)
 
         # Prune documents no longer in GraphQL
-        current_urls = {
-            str(node.singlePage.contentUrl) for node in fetched_nodes if node.singlePage
-        }
-        pruned_count = self.state_manager.prune_removed_documents(
-            query_set.name, current_urls, state
-        )
+        current_urls = {str(node.singlePage.contentUrl) for node in fetched_nodes if node.singlePage}
+        pruned_count = self.state_manager.prune_removed_documents(query_set.name, current_urls, state)
 
         if pruned_count > 0:
             self.logger.info("documents_pruned", count=pruned_count)
@@ -297,11 +286,7 @@ class PollingScheduler:
 
         # Process NEW documents (no diff, just QA generation)
         if new_docs:
-            new_urls = [
-                str(node.singlePage.contentUrl)
-                for node in new_docs
-                if node.singlePage and str(node.singlePage.contentUrl) in fetch_results
-            ]
+            new_urls = [str(node.singlePage.contentUrl) for node in new_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
 
             if new_urls:
                 workspace_base = Path("tmp/graphql_polling")
@@ -314,9 +299,7 @@ class PollingScheduler:
                 )
 
                 try:
-                    self.pipeline_runner.run_for_new_documents(
-                        query_set, new_urls, workspace_base
-                    )
+                    self.pipeline_runner.run_for_new_documents(query_set, new_urls, workspace_base)
                 except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
                     self.logger.error(
                         "new_documents_pipeline_failed",
@@ -327,11 +310,7 @@ class PollingScheduler:
 
         # Process MODIFIED documents (full diff + QA pipeline)
         if modified_docs:
-            modified_urls = [
-                str(node.singlePage.contentUrl)
-                for node in modified_docs
-                if node.singlePage and str(node.singlePage.contentUrl) in fetch_results
-            ]
+            modified_urls = [str(node.singlePage.contentUrl) for node in modified_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
 
             if modified_urls:
                 workspace_base = Path("tmp/graphql_polling")
@@ -344,9 +323,7 @@ class PollingScheduler:
                 )
 
                 try:
-                    self.pipeline_runner.run_for_modified_documents(
-                        query_set, modified_urls, workspace_base
-                    )
+                    self.pipeline_runner.run_for_modified_documents(query_set, modified_urls, workspace_base)
                 except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
                     self.logger.error(
                         "modified_documents_pipeline_failed",

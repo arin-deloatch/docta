@@ -95,9 +95,7 @@ class GraphQLClient:  # pylint: disable=too-many-instance-attributes
                 return self._access_token
 
         # Request new token
-        self.logger.info(
-            "requesting_oauth_token", token_url=self.token_url, scope=self.api_scope
-        )
+        self.logger.info("requesting_oauth_token", token_url=self.token_url, scope=self.api_scope)
 
         token_request_data = {
             "grant_type": "client_credentials",
@@ -118,7 +116,16 @@ class GraphQLClient:  # pylint: disable=too-many-instance-attributes
         response.raise_for_status()
 
         token_data = response.json()
-        access_token = token_data["access_token"]
+
+        # Validate OAuth response structure
+        if not isinstance(token_data, dict):
+            raise ValueError("OAuth token response must be a dictionary")
+        if "access_token" not in token_data:
+            raise ValueError("OAuth token response missing 'access_token' field")
+        if not isinstance(token_data["access_token"], str):
+            raise ValueError("OAuth 'access_token' must be a string")
+
+        access_token: str = token_data["access_token"]
         expires_in = token_data.get("expires_in", 3600)  # Default 1 hour
 
         # Cache token and expiration
@@ -163,6 +170,10 @@ class GraphQLClient:  # pylint: disable=too-many-instance-attributes
                 response.raise_for_status()
 
                 result = response.json()
+
+                # Validate GraphQL response structure
+                if not isinstance(result, dict):
+                    raise ValueError("GraphQL response must be a dictionary")
 
                 # Check for GraphQL errors
                 if "errors" in result:
@@ -211,9 +222,7 @@ class GraphQLClient:  # pylint: disable=too-many-instance-attributes
         """
         try:
             # Validate response structure with Pydantic
-            validated = DocumentationTitlesResponse(
-                documentation_titles=response["data"]["documentation_titles"]
-            )
+            validated = DocumentationTitlesResponse(documentation_titles=response["data"]["documentation_titles"])
 
             # Extract nodes from edges
             nodes = [edge.node for edge in validated.documentation_titles.edges]

@@ -229,9 +229,7 @@ def _create_count_change(  # pylint: disable=too-many-arguments,too-many-positio
     ]
 
 
-def _compare_headings(
-    old: Heading, new: Heading, section_path: str
-) -> list[BlockChange]:
+def _compare_headings(old: Heading, new: Heading, section_path: str) -> list[BlockChange]:
     """
     Compare two headings for text and level changes.
 
@@ -270,9 +268,7 @@ def _compare_headings(
     return changes
 
 
-def _compare_text_blocks(
-    old_blocks: list[TextBlock], new_blocks: list[TextBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_text_blocks(old_blocks: list[TextBlock], new_blocks: list[TextBlock], section_path: str) -> list[BlockChange]:
     """
     Compare text blocks within a section.
 
@@ -308,9 +304,7 @@ def _compare_text_blocks(
                 description=f"Added {new_count} text block(s)",
                 section_path=section_path,
                 new_content=new_text,
-                new_html="\n".join(
-                    b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]
-                ),
+                new_html="\n".join(b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]),
             )
         )
     elif old_count > 0 and new_count == 0:
@@ -320,16 +314,12 @@ def _compare_text_blocks(
                 description=f"Removed {old_count} text block(s)",
                 section_path=section_path,
                 old_content=old_text,
-                old_html="\n".join(
-                    b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]
-                ),
+                old_html="\n".join(b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]),
             )
         )
     else:
         # Modified
-        char_diff = sum(b.char_count for b in new_blocks) - sum(
-            b.char_count for b in old_blocks
-        )
+        char_diff = sum(b.char_count for b in new_blocks) - sum(b.char_count for b in old_blocks)
         changes.append(
             BlockChange(
                 change_type="text_modified",
@@ -337,12 +327,8 @@ def _compare_text_blocks(
                 section_path=section_path,
                 old_content=old_text,
                 new_content=new_text,
-                old_html="\n".join(
-                    b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]
-                ),
-                new_html="\n".join(
-                    b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]
-                ),
+                old_html="\n".join(b.html_snippet for b in old_blocks[:MAX_PREVIEW_BLOCKS]),
+                new_html="\n".join(b.html_snippet for b in new_blocks[:MAX_PREVIEW_BLOCKS]),
                 similarity=similarity,
             )
         )
@@ -350,9 +336,7 @@ def _compare_text_blocks(
     return changes
 
 
-def _compare_code_blocks(
-    old_blocks: list[CodeBlock], new_blocks: list[CodeBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_code_blocks(old_blocks: list[CodeBlock], new_blocks: list[CodeBlock], section_path: str) -> list[BlockChange]:
     """
     Compare code blocks within a section.
 
@@ -382,13 +366,9 @@ def _compare_code_blocks(
                 removed_type="code_removed",
                 item_name="code block",
                 section_path=section_path,
-                new_content=(
-                    truncate_content(new_blocks[-1].code) if new_blocks else None
-                ),
+                new_content=(truncate_content(new_blocks[-1].code) if new_blocks else None),
                 new_html=new_blocks[-1].html_snippet if new_blocks else None,
-                old_content=(
-                    truncate_content(old_blocks[-1].code) if old_blocks else None
-                ),
+                old_content=(truncate_content(old_blocks[-1].code) if old_blocks else None),
                 old_html=old_blocks[-1].html_snippet if old_blocks else None,
             )
         )
@@ -418,9 +398,7 @@ def _compare_code_blocks(
     return changes
 
 
-def _compare_tables(
-    old_tables: list[TableBlock], new_tables: list[TableBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_tables(old_tables: list[TableBlock], new_tables: list[TableBlock], section_path: str) -> list[BlockChange]:
     """
     Compare tables within a section.
 
@@ -456,10 +434,7 @@ def _compare_tables(
         old_table = old_tables[i]
         new_table = new_tables[i]
 
-        if (
-            old_table.row_count != new_table.row_count
-            or old_table.column_count != new_table.column_count
-        ):
+        if old_table.row_count != new_table.row_count or old_table.column_count != new_table.column_count:
             old_dims = f"{old_table.row_count}×{old_table.column_count}"
             new_dims = f"{new_table.row_count}×{new_table.column_count}"
             changes.append(
@@ -483,9 +458,7 @@ def _compare_tables(
     return changes
 
 
-def _compare_lists(
-    old_lists: list[ListBlock], new_lists: list[ListBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_lists(old_lists: list[ListBlock], new_lists: list[ListBlock], section_path: str) -> list[BlockChange]:
     """Compare lists."""
     changes = []
 
@@ -526,9 +499,7 @@ def _compare_lists(
     return changes
 
 
-def _compare_images(
-    old_images: list[ImageBlock], new_images: list[ImageBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_images(old_images: list[ImageBlock], new_images: list[ImageBlock], section_path: str) -> list[BlockChange]:
     """Compare images."""
     changes = []
 
@@ -563,9 +534,7 @@ def _compare_images(
     return changes
 
 
-def _compare_links(
-    old_links: list[LinkBlock], new_links: list[LinkBlock], section_path: str
-) -> list[BlockChange]:
+def _compare_links(old_links: list[LinkBlock], new_links: list[LinkBlock], section_path: str) -> list[BlockChange]:
     """Compare links."""
     changes = []
 
@@ -587,9 +556,7 @@ def _compare_links(
     return changes
 
 
-def _compare_sections(
-    old_section: Section, new_section: Section, parent_path: str = ""
-) -> list[BlockChange]:
+def _compare_sections(old_section: Section, new_section: Section, parent_path: str = "") -> list[BlockChange]:
     """
     Compare two sections recursively.
 
@@ -609,36 +576,22 @@ def _compare_sections(
 
     # Compare headings
     if old_section.heading and new_section.heading:
-        changes.extend(
-            _compare_headings(old_section.heading, new_section.heading, section_path)
-        )
+        changes.extend(_compare_headings(old_section.heading, new_section.heading, section_path))
 
     # Compare text content
-    changes.extend(
-        _compare_text_blocks(
-            old_section.text_blocks, new_section.text_blocks, section_path
-        )
-    )
+    changes.extend(_compare_text_blocks(old_section.text_blocks, new_section.text_blocks, section_path))
 
     # Compare code blocks
-    changes.extend(
-        _compare_code_blocks(
-            old_section.code_blocks, new_section.code_blocks, section_path
-        )
-    )
+    changes.extend(_compare_code_blocks(old_section.code_blocks, new_section.code_blocks, section_path))
 
     # Compare tables
-    changes.extend(
-        _compare_tables(old_section.tables, new_section.tables, section_path)
-    )
+    changes.extend(_compare_tables(old_section.tables, new_section.tables, section_path))
 
     # Compare lists
     changes.extend(_compare_lists(old_section.lists, new_section.lists, section_path))
 
     # Compare images
-    changes.extend(
-        _compare_images(old_section.images, new_section.images, section_path)
-    )
+    changes.extend(_compare_images(old_section.images, new_section.images, section_path))
 
     # Compare links
     changes.extend(_compare_links(old_section.links, new_section.links, section_path))
@@ -651,9 +604,7 @@ def _compare_sections(
 
     # Find matching subsections using fuzzy matching
     for new_subsection in new_section.subsections:
-        matched_old = _find_matching_section(
-            new_subsection, old_subsections_map, old_matched
-        )[1]
+        matched_old = _find_matching_section(new_subsection, old_subsections_map, old_matched)[1]
 
         if matched_old:
             # Found a match - compare them
@@ -686,9 +637,7 @@ def _compare_sections(
     return changes
 
 
-def compare_documents(
-    old_doc: ExtractedDocument, new_doc: ExtractedDocument
-) -> list[BlockChange]:
+def compare_documents(old_doc: ExtractedDocument, new_doc: ExtractedDocument) -> list[BlockChange]:
     """
     Compare two extracted documents at the block level.
 
@@ -726,9 +675,7 @@ def compare_documents(
 
     # Find matching sections using fuzzy matching
     for new_section in new_doc.sections:
-        matched_old = _find_matching_section(
-            new_section, old_sections_map, old_matched
-        )[1]
+        matched_old = _find_matching_section(new_section, old_sections_map, old_matched)[1]
 
         if matched_old:
             # Found a match - compare them

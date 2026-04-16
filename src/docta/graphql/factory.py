@@ -81,11 +81,7 @@ def create_polling_components(
     logger.info("initializing_graphql_client")
 
     # Use cert_path for SSL verification if provided, otherwise use verify boolean
-    ssl_verify: bool | str = (
-        settings.graphql.ssl.cert_path
-        or settings.graphql_cert_path
-        or settings.graphql.ssl.verify
-    )
+    ssl_verify: bool | str = settings.graphql.ssl.cert_path or settings.graphql_cert_path or settings.graphql.ssl.verify
 
     client = GraphQLClient(
         endpoint=settings.graphql.endpoint,
@@ -102,25 +98,25 @@ def create_polling_components(
 
     # Initialize content fetcher
     logger.info("initializing_content_fetcher")
-    download_dir = Path(settings.content.download_dir)
+    download_dir = Path(settings.content.download_dir)  # pylint: disable=no-member
     fetcher = ContentFetcher(
         get_access_token=client.get_token_for_content_fetching(),
         download_dir=download_dir,
-        max_size_mb=settings.content.max_file_size_mb,
-        timeout=settings.content.timeout_seconds,
+        max_size_mb=settings.content.max_file_size_mb,  # pylint: disable=no-member
+        timeout=settings.content.timeout_seconds,  # pylint: disable=no-member
         max_workers=10,  # Default, can be overridden per query set
         ssl_verify=ssl_verify,
     )
 
     # Initialize state manager
     logger.info("initializing_state_manager")
-    state_file = Path(settings.state.file_path)
+    state_file = Path(settings.state.file_path)  # pylint: disable=no-member
     state_manager = StateManager(
         state_file=state_file,
-        backup_enabled=settings.state.backup_enabled,
-        backup_count=settings.state.backup_count,
-        prune_removed=settings.state.prune_removed_documents,
-        cleanup_files=settings.state.cleanup_old_files,
+        backup_enabled=settings.state.backup_enabled,  # pylint: disable=no-member
+        backup_count=settings.state.backup_count,  # pylint: disable=no-member
+        prune_removed=settings.state.prune_removed_documents,  # pylint: disable=no-member
+        cleanup_files=settings.state.cleanup_old_files,  # pylint: disable=no-member
     )
 
     # Initialize pipeline runner
