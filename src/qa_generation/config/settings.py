@@ -113,7 +113,7 @@ class QAGenerationSettings(BaseSettings):
     def to_generator_config(self) -> GeneratorConfig:
         """Convert settings to GeneratorConfig model."""
         # Validate and convert set[str] to set[ChangeType] for type safety
-        valid_change_types = {"text_change", "structure_change", "metadata_change"}
+        valid_change_types = {"text_change", "structure_change", "metadata_change", "document_added"}
         invalid_types = self.filter_change_types - valid_change_types
         if invalid_types:
             raise ValueError(f"Invalid change types: {invalid_types}. " f"Valid types: {valid_change_types}")
