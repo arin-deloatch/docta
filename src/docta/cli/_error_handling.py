@@ -93,21 +93,21 @@ def handle_qa_errors(func: F) -> F:
                     QAGenerationError,
                 )
 
-                if isinstance(e, ConfigurationError):
+                if isinstance(e, ConfigurationError):  # pylint: disable=no-else-raise
                     typer.secho(f"Configuration Error: {e}", fg=typer.colors.RED, bold=True)
                     typer.secho(
                         "\nHint: Check your config file and API keys (e.g., OPENAI_API_KEY)",
                         fg=typer.colors.YELLOW,
                     )
                     raise typer.Exit(1)
-                if isinstance(e, LLMError):
+                elif isinstance(e, LLMError):
                     typer.secho(f"LLM API Error: {e}", fg=typer.colors.RED, bold=True)
                     typer.secho(
                         "\nHint: Check your API key, rate limits, and quota",
                         fg=typer.colors.YELLOW,
                     )
                     raise typer.Exit(1)
-                if isinstance(e, QAGenerationError):
+                elif isinstance(e, QAGenerationError):
                     typer.secho(f"Generation Error: {e}", fg=typer.colors.RED, bold=True)
                     raise typer.Exit(1)
             except ImportError:

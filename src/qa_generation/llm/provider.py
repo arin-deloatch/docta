@@ -23,7 +23,7 @@ from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 logger = structlog.get_logger(__name__)
 
 
-def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[valid-type]  # RAGAS wrapper types not recognized by mypy
+def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[valid-type]  # LangchainLLMWrapper is a variable, not a type alias
     """Create a RAGAS LLM instance using LangChain providers.
 
     Currently supported providers: OpenAI, Google/Gemini
@@ -95,7 +95,7 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
     raise ValueError(f"Unsupported LLM provider: '{config.provider}'. Supported providers: openai, google, gemini")
 
 
-def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapper:  # type: ignore[valid-type]  # RAGAS wrapper types not recognized by mypy
+def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapper:  # type: ignore[valid-type]  # LangchainEmbeddingsWrapper is a variable, not a type alias
     """Create a RAGAS embeddings instance using LangChain providers.
 
     Currently supported providers: OpenAI, Google/Gemini
