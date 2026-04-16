@@ -13,6 +13,7 @@ import structlog
 from pydantic import HttpUrl
 
 from docta.graphql.models import DocumentationTitleNode, DocumentVersion
+from docta.utils.constants import BYTES_PER_MB, DOWNLOAD_CHUNK_SIZE_BYTES
 
 
 class ContentFetcher:
@@ -40,7 +41,7 @@ class ContentFetcher:
         """
         self.get_access_token = get_access_token
         self.download_dir = download_dir
-        self.max_size_bytes = max_size_mb * 1024 * 1024
+        self.max_size_bytes = max_size_mb * BYTES_PER_MB
         self.timeout = timeout
         self.max_workers = max_workers
         self.ssl_verify = ssl_verify
@@ -168,10 +169,10 @@ class ContentFetcher:
 
         # Read content with size limit
         content = b""
-        for chunk in response.iter_content(chunk_size=8192):
+        for chunk in response.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE_BYTES):
             content += chunk
             if len(content) > self.max_size_bytes:
-                raise ValueError(f"Content exceeds {self.max_size_bytes} bytes " f"(max {self.max_size_bytes // (1024 * 1024)}MB)")
+                raise ValueError(f"Content size {len(content)} bytes exceeds max {self.max_size_bytes // BYTES_PER_MB}MB")
 
         # Compute content hash
         content_hash = hashlib.sha256(content).hexdigest()

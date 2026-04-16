@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import Literal
 
 # File processing limits
-MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB per file
-MAX_REPORT_SIZE_BYTES = 100 * 1024 * 1024  # 100MB for aggregate reports
+BYTES_PER_MB = 1024 * 1024  # Conversion factor: MB to bytes
+DOWNLOAD_CHUNK_SIZE_BYTES = 8192  # HTTP download chunk size
+MAX_FILE_SIZE_BYTES = 10 * BYTES_PER_MB  # 10MB per file
+MAX_REPORT_SIZE_BYTES = 100 * BYTES_PER_MB  # 100MB for aggregate reports
 MAX_FILES_TO_PROCESS = 10_000  # Prevent processing excessive files
 
 # Allowed file extensions
