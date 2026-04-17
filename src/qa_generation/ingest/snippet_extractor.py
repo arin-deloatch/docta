@@ -87,6 +87,7 @@ def _iter_filtered_changes(
 def extract_snippets(
     report: HTMLDiffReport,
     config: FilterConfig,
+    max_documents: int | None = None,
 ) -> tuple[list[QASourceDocument], SnippetExtractionStats]:
     """Extract filtered text snippets from a diff report.
 
@@ -96,6 +97,7 @@ def extract_snippets(
     Args:
         report: HTMLDiffReport to extract snippets from
         config: FilterConfig with filtering rules
+        max_documents: Optional limit on number of documents to extract (stops early)
 
     Returns:
         Tuple of (list of QASourceDocument, extraction statistics)
@@ -158,6 +160,15 @@ def extract_snippets(
             )
             snippets.append(snippet)
             stats.extracted_snippets += 1
+
+            # Early termination if max_documents limit reached
+            if max_documents is not None and len(snippets) >= max_documents:
+                logger.info(
+                    "max_documents_reached",
+                    extracted=len(snippets),
+                    max_documents=max_documents,
+                )
+                break
         except ValueError as e:
             logger.warning(
                 "snippet_extraction_failed",

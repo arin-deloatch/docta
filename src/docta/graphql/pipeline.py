@@ -127,6 +127,7 @@ class PipelineRunner:
                     settings=qa_settings,
                     output_format="json",
                     allow_overwrite=True,
+                    num_documents=qa_settings.num_documents,
                 )
 
                 self.logger.info(
@@ -299,6 +300,7 @@ class PipelineRunner:
                     settings=qa_settings,
                     output_format="json",
                     allow_overwrite=True,
+                    num_documents=qa_settings.num_documents,
                 )
 
                 self.logger.info(

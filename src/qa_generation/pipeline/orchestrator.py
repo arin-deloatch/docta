@@ -208,10 +208,14 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
         new_version=report.new_version,
     )
 
-    # Step 2: Extract snippets
-    logger.info("extracting_snippets")
+    # Step 2: Extract snippets with optional limit
+    logger.info("extracting_snippets", max_documents=num_documents)
     generator_config = settings.to_generator_config()
-    snippets, stats = extract_snippets(report, generator_config.filtering)
+    snippets, stats = extract_snippets(
+        report,
+        generator_config.filtering,
+        max_documents=num_documents,
+    )
 
     logger.info(
         "snippets_extracted",
@@ -225,18 +229,6 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
 
     # Step 3: Snippets are already QASourceDocument objects
     source_documents = snippets
-
-    # Limit documents if requested
-    if num_documents is not None:
-        if num_documents <= 0:
-            raise ValueError(f"num_documents must be positive, got {num_documents}")
-        original_count = len(source_documents)
-        source_documents = source_documents[:num_documents]
-        logger.info(
-            "documents_limited",
-            original_count=original_count,
-            limited_count=len(source_documents),
-        )
 
     # Count unique topics for stratification decision
     unique_topics = set(doc.topic_slug for doc in source_documents if doc.topic_slug)
@@ -354,11 +346,16 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     if not delta_report.added:
         raise ValueError(f"No added documents found in delta report. " f"Modified: {len(delta_report.modified)}, " f"Renamed: {len(delta_report.renamed_candidates)}")
 
-    # Step 2: Extract added documents (parse HTML)
-    logger.info("extracting_added_documents")
+    # Step 2: Extract added documents (parse HTML) with optional limit
+    logger.info("extracting_added_documents", max_documents=num_documents)
     generator_config = settings.to_generator_config()
     stats = AddedDocumentStats()
-    extracted_docs = extract_added_documents(delta_report, generator_config.filtering, stats)
+    extracted_docs = extract_added_documents(
+        delta_report,
+        generator_config.filtering,
+        stats,
+        max_documents=num_documents,
+    )
 
     logger.info(
         "added_documents_extracted",
@@ -369,9 +366,15 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     if not extracted_docs:
         raise ValueError(f"No added documents could be extracted. " f"Total added: {len(delta_report.added)}, " f"Filtered invalid HTML: {stats.filtered_invalid_html}")
 
-    # Step 3: Convert sections to QASourceDocument
+    # Step 3: Convert sections to QASourceDocument with optional limit
     logger.info("converting_sections_to_source_documents")
-    source_documents = convert_added_documents(extracted_docs, delta_report, generator_config.filtering, stats)
+    source_documents = convert_added_documents(
+        extracted_docs,
+        delta_report,
+        generator_config.filtering,
+        stats,
+        max_documents=num_documents,
+    )
 
     logger.info(
         "source_documents_created",
@@ -387,18 +390,6 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
             f"Total sections extracted: {stats.total_sections_extracted}, "
             f"Filtered by length: {stats.filtered_by_length}. "
             f"Try adjusting min_text_length/max_text_length settings."
-        )
-
-    # Limit documents if requested
-    if num_documents is not None:
-        if num_documents <= 0:
-            raise ValueError(f"num_documents must be positive, got {num_documents}")
-        original_count = len(source_documents)
-        source_documents = source_documents[:num_documents]
-        logger.info(
-            "documents_limited",
-            original_count=original_count,
-            limited_count=len(source_documents),
         )
 
     # Count unique topics for stratification decision
@@ -523,8 +514,12 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
         new_version=diff_report.new_version,
     )
 
-    logger.info("extracting_snippets_from_modified_documents")
-    modified_sources, snippet_stats = extract_snippets(diff_report, generator_config.filtering)
+    logger.info("extracting_snippets_from_modified_documents", max_documents=num_documents)
+    modified_sources, snippet_stats = extract_snippets(
+        diff_report,
+        generator_config.filtering,
+        max_documents=num_documents,
+    )
     logger.info(
         "modified_snippets_extracted",
         extracted=snippet_stats.extracted_snippets,
@@ -541,12 +536,23 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
 
     added_sources = []
     if delta_report.added:
-        logger.info("extracting_added_documents")
+        logger.info("extracting_added_documents", max_documents=num_documents)
         added_stats = AddedDocumentStats()
-        extracted_docs = extract_added_documents(delta_report, generator_config.filtering, added_stats)
+        extracted_docs = extract_added_documents(
+            delta_report,
+            generator_config.filtering,
+            added_stats,
+            max_documents=num_documents,
+        )
 
         logger.info("converting_added_document_sections")
-        added_sources = convert_added_documents(extracted_docs, delta_report, generator_config.filtering, added_stats)
+        added_sources = convert_added_documents(
+            extracted_docs,
+            delta_report,
+            generator_config.filtering,
+            added_stats,
+            max_documents=num_documents,
+        )
 
         logger.info(
             "added_documents_processed",

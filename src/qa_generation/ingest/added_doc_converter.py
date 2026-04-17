@@ -231,6 +231,7 @@ def convert_added_documents(
     delta_report: DeltaReport,
     config: FilterConfig,
     stats: AddedDocumentStats,
+    max_documents: int | None = None,
 ) -> list[QASourceDocument]:
     """Convert ExtractedDocument sections to QASourceDocument format.
 
@@ -239,6 +240,7 @@ def convert_added_documents(
         delta_report: DeltaReport for version info and topic slug mapping
         config: FilterConfig for text length filtering
         stats: Stats object to mutate during processing
+        max_documents: Optional limit on number of source documents to create (stops early)
 
     Returns:
         List of QASourceDocument ready for QA generation
@@ -281,6 +283,19 @@ def convert_added_documents(
             )
             all_source_docs.extend(section_docs)
             stats.total_sections_extracted += len(section_docs)
+
+            # Early termination if max_documents limit reached (check after each section)
+            if max_documents is not None and len(all_source_docs) >= max_documents:
+                logger.info(
+                    "max_documents_reached_during_conversion",
+                    extracted=len(all_source_docs),
+                    max_documents=max_documents,
+                )
+                break
+
+        # Early termination if max_documents limit reached (check after each document)
+        if max_documents is not None and len(all_source_docs) >= max_documents:
+            break
 
         logger.debug(
             "document_sections_extracted",

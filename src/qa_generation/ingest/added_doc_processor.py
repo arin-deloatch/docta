@@ -77,6 +77,7 @@ def extract_added_documents(
     delta_report: DeltaReport,
     config: FilterConfig,  # pylint: disable=unused-argument
     stats: AddedDocumentStats,
+    max_documents: int | None = None,
 ) -> list[ExtractedDocument]:
     """Extract HTML content from added documents.
 
@@ -84,6 +85,7 @@ def extract_added_documents(
         delta_report: DeltaReport containing added documents
         config: FilterConfig for filtering settings (currently unused but kept for future)
         stats: Stats object to mutate during processing
+        max_documents: Optional limit on number of documents to extract (stops early)
 
     Returns:
         List of ExtractedDocument objects from successfully parsed HTML files
@@ -139,6 +141,15 @@ def extract_added_documents(
                 sections=len(extracted_doc.sections),
                 char_count=extracted_doc.total_char_count,
             )
+
+            # Early termination if max_documents limit reached
+            if max_documents is not None and len(extracted_docs) >= max_documents:
+                logger.info(
+                    "max_documents_reached",
+                    extracted=len(extracted_docs),
+                    max_documents=max_documents,
+                )
+                break
         except (FileNotFoundError, PermissionError, UnicodeDecodeError) as e:
             logger.warning(
                 "added_document_extraction_failed",
