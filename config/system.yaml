@@ -15,8 +15,8 @@ embedding:
 
 # Generation Settings
 generation:
-  testset_size: 1            # Number of QA pairs to generate
-  num_documents: 1         # Limit documents to process (null = all, or set to positive integer)
+  testset_size: 100          # Number of QA pairs to generate
+  num_documents: null        # Limit documents to process (null = all, or set to positive integer)
 
   # Query Distribution - must sum to 1.0
   query_distribution:
