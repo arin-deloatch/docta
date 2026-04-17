@@ -92,6 +92,8 @@ def generate(  # pylint: disable=too-many-arguments,too-many-positional-argument
     overrides = {}
     if testset_size is not None:
         overrides["testset_size"] = testset_size
+    if num_documents is not None:
+        overrides["num_documents"] = num_documents
 
     settings = load_settings(yaml_path=config, **overrides)
 
@@ -101,6 +103,7 @@ def generate(  # pylint: disable=too-many-arguments,too-many-positional-argument
     typer.echo(f"Report:       {report_path}")
     typer.echo(f"Output:       {output_path}")
     typer.echo(f"Testset Size: {settings.testset_size}")
+    typer.echo(f"Num Documents: {settings.num_documents or 'all'}")
     typer.echo(f"LLM:          {settings.llm_provider}/{settings.llm_model}")
     typer.echo("=" * 60)
     typer.echo()
@@ -112,7 +115,7 @@ def generate(  # pylint: disable=too-many-arguments,too-many-positional-argument
         settings=settings,
         output_format=output_format,
         allow_overwrite=allow_overwrite,
-        num_documents=num_documents,
+        num_documents=settings.num_documents,
     )
 
     typer.echo()
@@ -203,6 +206,8 @@ def from_added(  # pylint: disable=too-many-arguments,too-many-positional-argume
     overrides = {}
     if testset_size is not None:
         overrides["testset_size"] = testset_size
+    if num_documents is not None:
+        overrides["num_documents"] = num_documents
 
     settings = load_settings(yaml_path=config, **overrides)
 
@@ -212,6 +217,7 @@ def from_added(  # pylint: disable=too-many-arguments,too-many-positional-argume
     typer.echo(f"Delta Report: {delta_report_path}")
     typer.echo(f"Output:       {output_path}")
     typer.echo(f"Testset Size: {settings.testset_size}")
+    typer.echo(f"Num Documents: {settings.num_documents or 'all'}")
     typer.echo(f"LLM:          {settings.llm_provider}/{settings.llm_model}")
     typer.echo("=" * 60)
     typer.echo()
@@ -223,7 +229,7 @@ def from_added(  # pylint: disable=too-many-arguments,too-many-positional-argume
         settings=settings,
         output_format=output_format,
         allow_overwrite=allow_overwrite,
-        num_documents=num_documents,
+        num_documents=settings.num_documents,
     )
 
     typer.echo()
@@ -323,6 +329,8 @@ def unified(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     overrides = {}
     if testset_size is not None:
         overrides["testset_size"] = testset_size
+    if num_documents is not None:
+        overrides["num_documents"] = num_documents
 
     settings = load_settings(yaml_path=config, **overrides)
 
@@ -333,6 +341,7 @@ def unified(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     typer.echo(f"Semantic Diff Report: {semantic_diff_report_path}")
     typer.echo(f"Output:               {output_path}")
     typer.echo(f"Testset Size:         {settings.testset_size}")
+    typer.echo(f"Num Documents:        {settings.num_documents or 'all'}")
     typer.echo(f"LLM:                  {settings.llm_provider}/{settings.llm_model}")
     typer.echo("=" * 60)
     typer.echo()
@@ -345,7 +354,7 @@ def unified(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         settings=settings,
         output_format=output_format,
         allow_overwrite=allow_overwrite,
-        num_documents=num_documents,
+        num_documents=settings.num_documents,
     )
 
     typer.echo()
