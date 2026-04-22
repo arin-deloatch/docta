@@ -1,0 +1,151 @@
+# GraphQL Polling Configuration
+# Monitors documentation changes via GraphQL API and triggers diff/QA pipelines
+#
+# Environment Variables Required (not in this file for security):
+#   - GRAPHQL_CLIENT_ID: OAuth 2.0 client ID
+#   - GRAPHQL_CLIENT_SECRET: OAuth 2.0 client secret
+#   - GRAPHQL_TOKEN_URL: OAuth 2.0 token endpoint URL
+#   - APOLLOGRAPHQL_CLIENT_NAME: Apollo client name for telemetry
+#   - GRAPHQL_CERT_PATH: (Optional) Path to custom CA certificate
+
+# GraphQL API Configuration
+graphql:
+  endpoint: https://api.example.com/graphql
+  api_scope: api.graphql
+  apollographql_client_version: latest
+
+  # SSL/TLS Settings
+  ssl:
+    verify: true
+    cert_path: null  # Override via GRAPHQL_CERT_PATH env var if needed
+
+  # Polling Behavior
+  polling:
+    interval_minutes: 60          # Poll every 60 minutes
+    initial_delay_seconds: 10     # Wait 10s before first poll
+    retry_attempts: 3             # Retry failed requests 3 times
+    retry_backoff_seconds: 30     # Wait 30s between retries
+    timeout_seconds: 30           # Request timeout
+
+  # Query Sets - each monitors a different set of documentation
+  query_sets:
+    # Example 1: Query with filter string
+    - name: docs_set_1
+      enabled: true
+      query: |
+        query GetDocumentation($filter: String!) {
+          documentation_titles(filter: $filter) {
+            edges {
+              node {
+                name
+                revisionId
+                modified
+                singlePage {
+                  name
+                  url
+                  contentUrl
+                  modified
+                }
+              }
+            }
+          }
+        }
+      variables:
+        filter: "your-filter-criteria-here"
+      pipeline:
+        version_label: set1
+        output_dir: data/pipelines/docs_set_1
+        run_qa_generation: true
+        qa_config: config/system.yaml
+        max_concurrent_fetches: 10
+
+    # Example 2: Query with multiple variables
+    - name: docs_set_2
+      enabled: false
+      query: |
+        query GetDocumentation($filter: String!, $limit: Int) {
+          documentation_titles(filter: $filter, first: $limit) {
+            edges {
+              node {
+                name
+                revisionId
+                modified
+                singlePage {
+                  name
+                  url
+                  contentUrl
+                  modified
+                }
+              }
+            }
+          }
+        }
+      variables:
+        filter: "your-filter-criteria-here"
+        limit: 100
+      pipeline:
+        version_label: set2
+        output_dir: data/pipelines/docs_set_2
+        run_qa_generation: true
+        qa_config: config/system.yaml
+        max_concurrent_fetches: 10
+
+    # Example 3: Query without variables (all documents)
+    - name: docs_all
+      enabled: false
+      query: |
+        query GetAllDocumentation {
+          documentation_titles {
+            edges {
+              node {
+                name
+                revisionId
+                modified
+                singlePage {
+                  name
+                  url
+                  contentUrl
+                  modified
+                }
+              }
+            }
+          }
+        }
+      variables: {}
+      pipeline:
+        version_label: all
+        output_dir: data/pipelines/docs_all
+        run_qa_generation: false
+        qa_config: config/system.yaml
+        max_concurrent_fetches: 5
+
+# State Management
+state:
+  file_path: config/state/polling_state.json
+  backup_enabled: true
+  backup_count: 5                  # Keep 5 backup copies
+  prune_removed_documents: true    # Remove docs no longer in GraphQL
+  cleanup_old_files: true          # Clean up orphaned downloaded files
+
+# Content Fetching
+content:
+  download_dir: data/fetched_content
+  max_file_size_mb: 100           # Skip files larger than 100MB
+  timeout_seconds: 60             # Download timeout
+  verify_ssl: true                # Verify SSL certificates
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+  # File Logging (disabled by default)
+  file:
+    enabled: false
+    path: logs/graphql_poller.log
+    max_size_mb: 50               # Rotate after 50MB
+    backup_count: 3               # Keep 3 rotated logs
+
+  # Console Logging
+  console:
+    enabled: true
+    format: json  # json or human
