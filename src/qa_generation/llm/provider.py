@@ -52,7 +52,7 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
 
     if provider_lower in ("gemini", "google"):
         try:
-            from langchain_google_genai import (  # pylint: disable=import-outside-toplevel
+            from langchain_google_genai import (  # type: ignore[reportMissingImports]  # pylint: disable=import-outside-toplevel
                 ChatGoogleGenerativeAI,
             )
         except ImportError as e:
@@ -84,10 +84,10 @@ def create_ragas_llm(config: LLMConfig) -> LangchainLLMWrapper:  # type: ignore[
         if not api_key:
             raise ValueError("OPENAI_API_KEY not found in environment. Ensure setup_environment() was called before creating LLM.")
 
-        langchain_llm = ChatOpenAI(  # type: ignore[call-arg,assignment]  # max_tokens vs max_completion_tokens naming varies, multiple LLM types
+        langchain_llm = ChatOpenAI(  # type: ignore[call-arg,assignment,reportCallIssue]  # max_tokens vs max_completion_tokens naming varies, multiple LLM types
             model=config.model,
             temperature=config.temperature,
-            max_tokens=config.max_tokens,
+            max_tokens=config.max_tokens,  # type: ignore[reportCallIssue]
         )
 
         return LangchainLLMWrapper(langchain_llm)  # type: ignore[arg-type,no-any-return]  # LangChain wrappers accept multiple chat model types, RAGAS wrapper returns not fully typed
@@ -123,7 +123,7 @@ def create_ragas_embeddings(config: EmbeddingConfig) -> LangchainEmbeddingsWrapp
 
     if provider_lower in ("gemini", "google"):
         try:
-            from langchain_google_genai import (  # pylint: disable=import-outside-toplevel
+            from langchain_google_genai import (  # type: ignore[reportMissingImports]  # pylint: disable=import-outside-toplevel
                 GoogleGenerativeAIEmbeddings,
             )
         except ImportError as e:
