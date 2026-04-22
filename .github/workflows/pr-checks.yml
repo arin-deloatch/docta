@@ -78,7 +78,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-groups --all-extras
 
       - name: Run type checkers
         run: make type-check
@@ -102,7 +102,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-groups --all-extras
 
       - name: Run security checks
         run: make security
