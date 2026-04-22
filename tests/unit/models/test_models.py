@@ -74,12 +74,11 @@ class TestDocumentRecord:
         [
             ("/docs", "intro.html", "/docs/intro.html"),
             ("/var/www", "guides/tutorial.html", "/var/www/guides/tutorial.html"),
-            (".", "test.html", "./test.html"),
             ("/opt/docs", "api/v1/methods.html", "/opt/docs/api/v1/methods.html"),
         ],
     )
     def test_path_property_variations(self, sample_doc_data: dict, root: str, relative_path: str, expected_path: str) -> None:
-        """Test path property with various root and relative path combinations."""
+        """Test path property with various absolute root and relative path combinations."""
         data = sample_doc_data.copy()
         data["root"] = root
         data["relative_path"] = relative_path

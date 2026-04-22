@@ -28,6 +28,8 @@ pylint:
 	uv run pylint src
 	uv run pylint --disable=R0801 tests
 
+lint: ruff pylint
+
 black:
 	uv run black src tests
 
@@ -36,9 +38,12 @@ black-check:
 
 type-check:
 	uv run mypy src tests
+	uv run pyright src tests
 
 bandit:
 	uv run bandit -r src
+
+security: bandit
 
 test:
 	uv run pytest
