@@ -22,22 +22,23 @@ install-deps-test:
 	uv sync --group dev
 
 ruff:
-	uv run ruff check src
+	uv run ruff check src tests
 
 pylint:
 	uv run pylint src
+	uv run pylint --disable=R0801 tests
 
 black:
-	uv run black src
+	uv run black src tests
 
 black-check:
-	uv run black --check src
+	uv run black --check src tests
 
 type-check:
-	uv run mypy src/
+	uv run mypy src tests
 
 bandit:
-	uv run bandit -r src/
+	uv run bandit -r src
 
 test:
 	uv run pytest
