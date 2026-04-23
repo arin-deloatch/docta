@@ -51,11 +51,8 @@ class TestValidateInputDirectory:
         symlink_dir = tmp_path / "link"
         symlink_dir.symlink_to(real_dir)
 
-        # Note: After resolve(), the path is no longer a symlink
-        # The implementation checks before resolve, so this test validates the behavior
-        result = validate_input_directory(str(symlink_dir))
-        # Symlink gets resolved to real directory
-        assert result.is_dir()
+        with pytest.raises(SecurityError, match="Symlinked directories not allowed"):
+            validate_input_directory(str(symlink_dir))
 
     def test_symlink_allowed_when_enabled(self, tmp_path: Path) -> None:
         """Test that symlinks are allowed when allow_symlinks=True."""
@@ -142,21 +139,11 @@ class TestValidateOutputPath:
 
     def test_forbidden_system_directory(self) -> None:
         """Test that writing to system directories is forbidden."""
-        # This test might not work on all systems, so we'll be cautious
         forbidden_paths = ["/etc/test.json", "/sys/test.json", "/proc/test.json"]
 
         for path_str in forbidden_paths:
-            try:
+            with pytest.raises(SecurityError):
                 validate_output_path(path_str)
-                # If we get here without error, skip this check (may not have perms)
-            except SecurityError as e:
-                if "forbidden" in str(e).lower():
-                    # Good, it was caught
-                    continue
-                # Other security errors are fine too
-            except (PermissionError, OSError):
-                # Expected on real systems
-                pass
 
 
 class TestValidateFileForReading:

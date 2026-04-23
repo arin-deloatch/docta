@@ -294,10 +294,16 @@ class TestConfigEdgeCases:
     def test_missing_required_env_vars(
         self,
         sample_graphql_yaml_file: Path,
-        monkeypatch: pytest.MonkeyPatch,  # pylint: disable=unused-argument  # Available but intentionally not used
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test that missing required env vars causes validation error."""
-        # Don't set any env vars
+        for var in (
+            "GRAPHQL_CLIENT_ID",
+            "GRAPHQL_CLIENT_SECRET",
+            "GRAPHQL_TOKEN_URL",
+            "APOLLOGRAPHQL_CLIENT_NAME",
+        ):
+            monkeypatch.delenv(var, raising=False)
         with pytest.raises(ValueError, match="validation"):
             load_graphql_settings(sample_graphql_yaml_file)
 

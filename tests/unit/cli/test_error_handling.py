@@ -139,8 +139,10 @@ class TestHandleQaErrors:
             raise KeyboardInterrupt()
 
         # KeyboardInterrupt is caught and converted to Exit with code 130
-        with pytest.raises((typer.Exit, SystemExit, KeyboardInterrupt)):
+        with pytest.raises(typer.Exit) as exc_info:
             raises_keyboard_interrupt()
+
+        assert exc_info.value.exit_code == 130
 
     def test_preserves_function_metadata(self) -> None:
         """Test that decorator preserves function metadata."""
