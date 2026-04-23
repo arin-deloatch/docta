@@ -38,9 +38,16 @@ def validate_input_directory(
     Raises:
         SecurityError: If validation fails
     """
+    # Create path object (don't resolve yet, so we can check for symlinks)
+    path = Path(path_str)
+
+    # Check for symlink before resolving (resolve() follows symlinks)
+    if not allow_symlinks and path.is_symlink():
+        raise SecurityError(f"Symlinked directories not allowed: {path}")
+
+    # Now resolve to absolute path (prevents relative path tricks)
     try:
-        # Resolve to absolute path (prevents relative path tricks)
-        path = Path(path_str).resolve(strict=must_exist)
+        path = path.resolve(strict=must_exist)
     except (OSError, RuntimeError) as e:
         raise SecurityError(f"Invalid path '{path_str}': {e}") from e
 
@@ -51,10 +58,6 @@ def validate_input_directory(
     # Check it's a directory
     if must_exist and not path.is_dir():
         raise SecurityError(f"Path is not a directory: {path}")
-
-    # Check for symlink (optional)
-    if not allow_symlinks and path.is_symlink():
-        raise SecurityError(f"Symlinked directories not allowed: {path}")
 
     # Check path is within allowed base directory (prevents ../../../etc)
     if allowed_base is not None:

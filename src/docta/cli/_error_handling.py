@@ -84,6 +84,9 @@ def handle_qa_errors(func: F) -> F:
             )
             typer.secho("Install with: uv sync --extra qa", fg=typer.colors.YELLOW)
             raise typer.Exit(1)
+        except KeyboardInterrupt as exc:
+            typer.secho("\nInterrupted by user", fg=typer.colors.YELLOW)
+            raise typer.Exit(130) from exc
         except Exception as e:
             # Try to catch specialized QA errors if dependencies are available
             try:
@@ -113,11 +116,6 @@ def handle_qa_errors(func: F) -> F:
             except ImportError:
                 # QA dependencies not available, fall through to generic handler
                 pass
-
-            # Generic error handler
-            if isinstance(e, KeyboardInterrupt):
-                typer.secho("\nInterrupted by user", fg=typer.colors.YELLOW)
-                raise typer.Exit(130)
 
             typer.secho(f"Unexpected Error: {e}", fg=typer.colors.RED, bold=True)
             logger.exception("unexpected_error")
