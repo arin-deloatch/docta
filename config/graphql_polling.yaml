@@ -1,4 +1,4 @@
-# GraphQL Polling Configuration
+# EXAMPLE CONFIGURATION — All values are placeholders. Copy and populate before use.
 # Monitors documentation changes via GraphQL API and triggers diff/QA pipelines
 #
 # Environment Variables Required (not in this file for security):
