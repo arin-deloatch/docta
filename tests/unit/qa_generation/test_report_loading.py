@@ -10,8 +10,8 @@ import pytest
 from qa_generation.utils.report_loading import validate_and_load_json_report
 
 
-class TestError(Exception):
-    """Custom test error class."""
+class _SentinelError(Exception):
+    """Custom error class for testing error propagation."""
 
 
 class TestValidateAndLoadJsonReport:
@@ -22,7 +22,7 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.json"
         report_file.write_text(json.dumps({"key": "value", "count": 42}))
 
-        result = validate_and_load_json_report(report_file, TestError, "test")
+        result = validate_and_load_json_report(report_file, _SentinelError, "test")
         assert result == {"key": "value", "count": 42}
 
     def test_invalid_json(self, tmp_path: Path) -> None:
@@ -30,23 +30,23 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.json"
         report_file.write_text("not valid json{{{")
 
-        with pytest.raises(TestError, match="Invalid JSON"):
-            validate_and_load_json_report(report_file, TestError, "test")
+        with pytest.raises(_SentinelError, match="Invalid JSON"):
+            validate_and_load_json_report(report_file, _SentinelError, "test")
 
     def test_json_array_root_rejected(self, tmp_path: Path) -> None:
         """Test JSON array root type is rejected."""
         report_file = tmp_path / "report.json"
         report_file.write_text(json.dumps([1, 2, 3]))
 
-        with pytest.raises(TestError, match="Invalid JSON root type"):
-            validate_and_load_json_report(report_file, TestError, "test")
+        with pytest.raises(_SentinelError, match="Invalid JSON root type"):
+            validate_and_load_json_report(report_file, _SentinelError, "test")
 
     def test_nonexistent_file(self) -> None:
         """Test nonexistent file raises security validation error."""
-        with pytest.raises(TestError, match="Security validation failed"):
+        with pytest.raises(_SentinelError, match="Security validation failed"):
             validate_and_load_json_report(
                 Path("/nonexistent/report.json"),
-                TestError,
+                _SentinelError,
                 "test",
             )
 
@@ -55,8 +55,8 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.txt"
         report_file.write_text(json.dumps({"key": "value"}))
 
-        with pytest.raises(TestError, match="Security validation failed"):
-            validate_and_load_json_report(report_file, TestError, "test")
+        with pytest.raises(_SentinelError, match="Security validation failed"):
+            validate_and_load_json_report(report_file, _SentinelError, "test")
 
     def test_large_valid_json(self, tmp_path: Path) -> None:
         """Test loading a large valid JSON file succeeds."""
@@ -64,7 +64,7 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.json"
         report_file.write_text(json.dumps(data))
 
-        result = validate_and_load_json_report(report_file, TestError, "test")
+        result = validate_and_load_json_report(report_file, _SentinelError, "test")
         assert len(result) == 1000
 
     def test_nested_json(self, tmp_path: Path) -> None:
@@ -76,7 +76,7 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.json"
         report_file.write_text(json.dumps(data))
 
-        result = validate_and_load_json_report(report_file, TestError, "test")
+        result = validate_and_load_json_report(report_file, _SentinelError, "test")
         assert result["metadata"]["version"] == "1.0"
         assert len(result["results"]) == 2
 
@@ -85,15 +85,15 @@ class TestValidateAndLoadJsonReport:
         report_file = tmp_path / "report.json"
         report_file.write_text("bad")
 
-        with pytest.raises(TestError):
-            validate_and_load_json_report(report_file, TestError, "test")
+        with pytest.raises(_SentinelError):
+            validate_and_load_json_report(report_file, _SentinelError, "test")
 
     def test_empty_json_object(self, tmp_path: Path) -> None:
         """Test loading empty JSON object returns empty dict."""
         report_file = tmp_path / "report.json"
         report_file.write_text("{}")
 
-        result = validate_and_load_json_report(report_file, TestError, "test")
+        result = validate_and_load_json_report(report_file, _SentinelError, "test")
         assert result == {}
 
     def test_symlink_rejected(self, tmp_path: Path) -> None:
@@ -103,5 +103,5 @@ class TestValidateAndLoadJsonReport:
         link_file = tmp_path / "link.json"
         link_file.symlink_to(real_file)
 
-        with pytest.raises(TestError, match="Security validation failed"):
-            validate_and_load_json_report(link_file, TestError, "test")
+        with pytest.raises(_SentinelError, match="Security validation failed"):
+            validate_and_load_json_report(link_file, _SentinelError, "test")

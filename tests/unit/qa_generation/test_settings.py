@@ -18,6 +18,33 @@ from qa_generation.config.settings import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _isolate_settings_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Prevent BaseSettings from reading ambient env vars during settings tests."""
+    for var in (
+        "OPENAI_API_KEY",
+        "GOOGLE_API_KEY",
+        "TESTSET_SIZE",
+        "NUM_DOCUMENTS",
+        "SEED",
+        "LLM_PROVIDER",
+        "LLM_MODEL",
+        "LLM_TEMPERATURE",
+        "LLM_MAX_TOKENS",
+        "EMBEDDING_PROVIDER",
+        "EMBEDDING_MODEL",
+        "QUERY_DIST_SPECIFIC",
+        "QUERY_DIST_ABSTRACT",
+        "QUERY_DIST_COMPARATIVE",
+        "FILTER_MIN_TEXT_LENGTH",
+        "FILTER_MAX_TEXT_LENGTH",
+        "FILTER_MIN_SIMILARITY",
+        "FILTER_MAX_SIMILARITY",
+        "FILTER_CHANGE_TYPES",
+    ):
+        monkeypatch.delenv(var, raising=False)
+
+
 class TestQAGenerationSettings:
     """Tests for QAGenerationSettings model."""
 

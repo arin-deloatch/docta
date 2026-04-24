@@ -85,7 +85,9 @@ class TestWriteQaPairsJson:
         output = tmp_path / "output.json"
         write_qa_pairs_json(qa_pairs, output, indent=4)
         content = output.read_text()
-        assert "    " in content
+        # With indent=4, dict keys nested inside a list are at 8 spaces (4+4).
+        # The default indent=2 would only reach 4 spaces, so this distinguishes the two.
+        assert "        " in content
 
 
 class TestWriteQaPairsYaml:

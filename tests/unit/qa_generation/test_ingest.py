@@ -427,9 +427,9 @@ class TestAddedDocConverter:
         sample_extracted_document: ExtractedDocument,
         sample_delta_report: DeltaReport,
     ) -> None:
-        """Test topic slug extraction from document and delta report."""
+        """Test topic slug extraction via exact path match."""
         slug = _get_topic_slug_from_document(sample_extracted_document, sample_delta_report)
-        assert slug is None or isinstance(slug, str)
+        assert slug == "new-guide"
 
     def test_get_topic_slug_by_filename(self) -> None:
         """Test topic slug lookup by matching filename."""
