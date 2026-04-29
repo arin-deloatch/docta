@@ -1,4 +1,4 @@
-.PHONY: help install lint format type-check security test all clean
+.PHONY: help install lint format type-check security test coverage all clean
 
 help:
 	@echo "Available targets:"
@@ -9,7 +9,8 @@ help:
 	@echo "  type-check   - Run type checkers (mypy, pyright)"
 	@echo "  security     - Run security checks (bandit)"
 	@echo "  test         - Run tests with pytest"
-	@echo "  all          - Run format, lint, type-check, security, and test"
+	@echo "  coverage     - Run tests with coverage report"
+	@echo "  all          - Run format-check, lint, type-check, security, and test"
 	@echo "  clean        - Remove cache and build artifacts"
 
 install:
@@ -47,6 +48,11 @@ security: bandit
 
 test:
 	uv run pytest
+
+coverage:
+	uv run pytest --cov=src --cov-report=term-missing
+
+all: black-check lint type-check security test
 
 pre-commit: black-check ruff bandit pylint type-check
 

@@ -84,6 +84,14 @@ ignore = [
     "E402",  # import-outside-toplevel (module level import not at top of file)
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+filterwarnings = [
+    "ignore::DeprecationWarning:ragas",
+    "ignore::DeprecationWarning:langchain",
+]
+
 [tool.mypy]
 python_version = "3.13"
 warn_return_any = true
