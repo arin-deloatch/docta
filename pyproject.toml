@@ -111,3 +111,7 @@ module = [
     "langchain_openai.*",
 ]
 ignore_missing_imports = true
+
+[tool.pyright]
+pythonVersion = "3.13"
+ignore = ["src/qa_generation"]
