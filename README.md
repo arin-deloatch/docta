@@ -672,6 +672,7 @@ uv run pytest --cov=src --cov-report=term-missing
 
 # Or via Makefile
 make test
+make coverage
 ```
 
 Tests live under `tests/unit/` and are organized by module. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on writing tests for new features.

@@ -27,6 +27,12 @@ spec:
         - name: poller
           image: <IMAGE_TAG>  # TODO: set your image reference
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
           command:
             - uv
             - run
@@ -52,6 +58,11 @@ spec:
                 secretKeyRef:
                   name: docta-secrets
                   key: GRAPHQL_TOKEN_URL
+            - name: APOLLOGRAPHQL_CLIENT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: docta-secrets
+                  key: APOLLOGRAPHQL_CLIENT_NAME
           volumeMounts:
             - name: config
               mountPath: /config
