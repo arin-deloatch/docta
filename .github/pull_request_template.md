@@ -23,6 +23,10 @@
 ## Testing Done
 
 <!-- Describe how you tested your changes -->
+<!-- Examples: -->
+<!-- - Unit tests: test_foo.py::test_bar -->
+<!-- - Manual testing: tested with sample config.yaml -->
+<!-- - Edge cases verified: empty input, large datasets, etc. -->
 
 -
 
@@ -41,3 +45,4 @@
 - [ ] Public functions have type hints
 - [ ] No credentials, internal endpoints, or sensitive data introduced
 - [ ] Documentation updated if behavior changed (README, docstrings, config examples)
+

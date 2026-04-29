@@ -24,7 +24,7 @@ What you expected to happen.
 
 What actually happened. Include any error messages or stack traces.
 
-```
+```text
 <paste output here>
 ```
 
@@ -46,3 +46,4 @@ If relevant, paste your config (redact any credentials):
 ## Additional Context
 
 Any other context, logs, or screenshots.
+
