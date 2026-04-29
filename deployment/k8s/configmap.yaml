@@ -1,0 +1,20 @@
+# ConfigMap for non-secret DOCTA configuration.
+# Copy config/graphql_polling.yaml content here (omit secrets — those go in secret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docta-config
+  namespace: docta
+data:
+  # TODO: populate with your graphql_polling.yaml content
+  graphql_polling.yaml: |
+    graphql:
+      endpoint: https://api.example.com/graphql
+      api_scope: api.graphql
+    state:
+      file_path: /data/state/polling_state.json
+    logging:
+      level: INFO
+      console:
+        enabled: true
+        format: json
