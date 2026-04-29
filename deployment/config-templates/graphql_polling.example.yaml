@@ -94,7 +94,7 @@ content:
 
 # Logging configuration
 # Note: Uses existing docta logging setup
-# File logging managed by Docker/systemd, not by application
+# File logging managed by Docker, not by application
 logging:
   level: "INFO"  # DEBUG, INFO, WARNING, ERROR
   console:
