@@ -7,8 +7,6 @@
 <p align="center"><i>A tool for tracking and analyzing differences across documentation versions using semantic content extraction.</i></p>
 
 ---
-<p align="center" style="font-weight: bold;"><i>This repository is under heavy construction.</i></p>
-
 ## Features
 
 - **Hash-based delta detection**: Quickly identify changed, added, removed, and renamed documents
@@ -20,7 +18,7 @@
 
 ## Requirements
 
-- Python 3.11+ (3.12+ recommended)
+- Python 3.13+
 - uv (package manager)
 
 ## Installation
@@ -293,7 +291,7 @@ logging:
     format: "json"
 ```
 
-See `prod/graphql_polling.yaml` for a complete example.
+See `config/graphql_polling.yaml` for a complete example with all supported options.
 
 ### Environment Variables
 
@@ -635,11 +633,11 @@ src/
 ### Setup
 
 ```bash
-# Install dependencies including dev tools
-uv sync
+# Install all dependencies including dev tools
+uv sync --group dev
 
-# Install dev dependencies explicitly
-uv add --dev black ruff mypy pyright pylint
+# For QA generation features
+uv sync --extra qa
 ```
 
 ### Code Quality
@@ -650,17 +648,38 @@ uv run black .
 
 # Lint
 uv run ruff check .
+uv run pylint src
 
 # Type check
-uv run pyright
+uv run mypy src tests
+uv run pyright src tests
 
 # Security scan
 uv run bandit -r src/
+
+# Run all checks (format-check, lint, type-check, security, test)
+make all
 ```
 
 ### Testing
 
-Tests are not yet implemented (contributions welcome).
+```bash
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=src --cov-report=term-missing
+
+# Or via Makefile
+make test
+make coverage
+```
+
+Tests live under `tests/unit/` and are organized by module. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on writing tests for new features.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, coding standards, and the pull request process. Review the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
 ## Dependencies
 

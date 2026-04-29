@@ -1,0 +1,14 @@
+# PersistentVolumeClaim for daemon state persistence.
+# TODO: set the storageClassName to match your cluster's storage provisioner.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: docta-state-pvc
+  namespace: docta
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard  # TODO: replace with your cluster's storage class

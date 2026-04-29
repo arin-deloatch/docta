@@ -1,0 +1,85 @@
+# Deployment for the DOCTA GraphQL polling daemon.
+# TODO: replace <IMAGE_TAG> with your container image reference.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docta-poller
+  namespace: docta
+  labels:
+    app.kubernetes.io/name: docta
+    app.kubernetes.io/component: poller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: docta
+      app.kubernetes.io/component: poller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: docta
+        app.kubernetes.io/component: poller
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: poller
+          image: <IMAGE_TAG>  # TODO: set your image reference
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          command:
+            - uv
+            - run
+            - docta
+            - daemon
+            - start
+            - --config
+            - /config/graphql_polling.yaml
+            - --foreground
+          env:
+            - name: GRAPHQL_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: docta-secrets
+                  key: GRAPHQL_CLIENT_ID
+            - name: GRAPHQL_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: docta-secrets
+                  key: GRAPHQL_CLIENT_SECRET
+            - name: GRAPHQL_TOKEN_URL
+              valueFrom:
+                secretKeyRef:
+                  name: docta-secrets
+                  key: GRAPHQL_TOKEN_URL
+            - name: APOLLOGRAPHQL_CLIENT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: docta-secrets
+                  key: APOLLOGRAPHQL_CLIENT_NAME
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: state
+              mountPath: /data/state
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: docta-config
+        - name: state
+          persistentVolumeClaim:
+            claimName: docta-state-pvc
