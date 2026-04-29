@@ -73,9 +73,8 @@ def start(
         logger.info("starting_foreground_polling")
         scheduler.run_forever()
     else:
-        # For background mode, we'd typically use a process manager like systemd
-        # For now, just run in foreground and advise user to use systemd/Docker
-        typer.echo("Background daemonization not implemented - use systemd or Docker")
+        # Background daemonization not implemented - use Docker
+        typer.echo("Background daemonization not implemented - use Docker")
         typer.echo("Running in foreground mode instead (Ctrl+C to stop)...")
         logger.info("starting_foreground_polling_fallback")
         scheduler.run_forever()
@@ -88,12 +87,10 @@ def stop() -> None:
     """Stop the running GraphQL polling daemon.
 
     This command is a placeholder for future implementation.
-    Currently, use Ctrl+C to stop a foreground daemon, or
-    `systemctl stop docta-graphql-poller` for systemd service.
+    Currently, use Ctrl+C to stop a foreground daemon.
     """
     typer.echo("Daemon stop not implemented - use:")
     typer.echo("  - Ctrl+C for foreground daemon")
-    typer.echo("  - systemctl stop docta-graphql-poller for systemd")
     typer.echo("  - docker-compose down for Docker")
 
 

@@ -107,7 +107,7 @@ Compare documentation versions and generate semantic diffs.
 Automated change detection via GraphQL API polling.
 
 - **`daemon start`** - Start the polling daemon
-- **`daemon stop`** - Stop the daemon (use Ctrl+C or systemd)
+- **`daemon stop`** - Stop the daemon (use Ctrl+C)
 - **`daemon status`** - Check daemon status and statistics
 - **`daemon run-once`** - Run single poll cycle for testing
 
@@ -297,7 +297,7 @@ See `prod/graphql_polling.yaml` for a complete example.
 
 ### Environment Variables
 
-Required OAuth credentials (store in `.env` or systemd EnvironmentFile):
+Required OAuth credentials (store in `.env`):
 
 ```bash
 GRAPHQL_CLIENT_ID=your-client-id
@@ -336,26 +336,6 @@ uv run docta daemon run-once \
   --force-new  # Skip diffing, run QA on all docs
 ```
 
-**Production (systemd):**
-
-1. Copy service file:
-```bash
-sudo cp deployment/systemd/docta-graphql-poller.service /etc/systemd/system/
-```
-
-2. Create environment file:
-```bash
-sudo cp /path/to/.env /etc/docta/graphql.env
-sudo chmod 600 /etc/docta/graphql.env
-```
-
-3. Start service:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable docta-graphql-poller
-sudo systemctl start docta-graphql-poller
-```
-
 **Production (Docker):**
 ```bash
 cd deployment/docker
@@ -387,7 +367,6 @@ Query Set: product_v2
 ```
 
 **View logs:**
-- Systemd: `journalctl -u docta-graphql-poller -f`
 - Docker: `docker logs -f docta-graphql-poller`
 
 ### State Management
@@ -718,6 +697,5 @@ Install with `uv sync --extra qa`:
 
 **Security Best Practices:**
 - Never commit credentials
-- Use environment files for secrets (`.env`, systemd `EnvironmentFile`)
+- Use environment files for secrets (`.env`)
 - Set appropriate file permissions (`chmod 600` for credential files)
-- Review security hardening in systemd service file
