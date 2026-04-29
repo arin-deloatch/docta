@@ -217,4 +217,4 @@ artifacts*
 # DO NOT ignore output inside src
 !src/output/
 
-.claude
+.claude/
