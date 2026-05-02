@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/doc-diff.png" alt="AI Generated Triangle" width="400"/>
+  <img src="assets/docta.png" alt="DOCTA logo" width="400"/>
 </p>
 
 <h1 align="center">DOCTA</h1>
