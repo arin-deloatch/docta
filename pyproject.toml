@@ -21,10 +21,6 @@ qa = [
   "ragas>=0.4.3,<0.5.0",
   "litellm>=1.82.4,<1.82.7",
   "instructor>=1.0.0",
-  "langchain-community>=0.3.0",
-  "langchain-core>=0.3.0",
-  "langchain-google-genai>=2.0.0",
-  "langchain-openai>=0.2.0",
   "pyyaml>=6.0",
 ]
 
@@ -69,10 +65,6 @@ disable = [
     "import-outside-toplevel",  # Allow imports inside functions/methods
 ]
 
-[tool.pylint.master]
-# Ignore import errors for optional dependencies not in core install
-ignored-modules = ["pydantic_settings", "requests", "pandas", "ragas", "langchain_core"]
-
 [tool.black]
 line-length = 200
 
@@ -89,7 +81,9 @@ testpaths = ["tests"]
 addopts = "-v"
 filterwarnings = [
     "ignore::DeprecationWarning:ragas",
-    "ignore::DeprecationWarning:langchain",
+]
+markers = [
+    "integration: end-to-end tests that make real LLM API calls (run with: pytest -m integration)",
 ]
 
 [tool.mypy]
@@ -104,14 +98,12 @@ no_implicit_optional = true
 [[tool.mypy.overrides]]
 module = [
     "ragas.*",
-    "langchain.*",
-    "langchain_core.*",
-    "langchain_community.*",
-    "langchain_google_genai.*",
-    "langchain_openai.*",
+    "litellm.*",
+    "instructor.*",
 ]
 ignore_missing_imports = true
 
 [tool.pyright]
 pythonVersion = "3.13"
+extraPaths = ["src"]
 ignore = ["src/qa_generation"]
