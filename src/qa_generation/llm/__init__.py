@@ -1,13 +1,8 @@
-"""LLM provider factory for RAGAS integration."""
+"""Framework-agnostic LLM and embedding managers."""
 
-from qa_generation.llm.provider import (
-    create_ragas_embeddings,
-    create_ragas_llm,
-    create_testset_generator,
-)
+from qa_generation.llm.manager import EmbeddingManager, LLMManager
 
 __all__ = [
-    "create_ragas_llm",
-    "create_ragas_embeddings",
-    "create_testset_generator",
+    "LLMManager",
+    "EmbeddingManager",
 ]

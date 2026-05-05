@@ -8,7 +8,7 @@ from typing import Any
 
 import structlog
 from langchain_core.documents import Document
-from langchain_core.exceptions import OutputParserException
+from instructor.core.exceptions import InstructorRetryException
 from ragas.testset import TestsetGenerator
 from ragas.testset.synthesizers.multi_hop.abstract import (
     MultiHopAbstractQuerySynthesizer,
@@ -181,7 +181,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
 
         Strategy:
         1. Try generating from all documents
-        2. If OutputParserException occurs, fall back to batch processing
+        2. If InstructorRetryException occurs, fall back to batch processing
         3. Track and skip problematic documents
         4. Return successful results + list of failed document indices
 
@@ -222,8 +222,8 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
         except ImportError as e:
             raise ConfigurationError(f"Missing RAGAS dependencies: {e}") from e
 
-        except OutputParserException as e:
-            # OutputParserException means LLM returned invalid JSON - try batch fallback
+        except InstructorRetryException as e:
+            # InstructorRetryException means litellm/instructor exhausted retries on bad structured output - try batch fallback
             logger.warning(
                 "output_parser_error_falling_back_to_batch_processing",
                 error=str(e)[:200],
@@ -327,7 +327,7 @@ class RAGASQAGenerator:  # pylint: disable=too-few-public-methods
                         error=str(e)[:100],
                     )
 
-            except OutputParserException as e:
+            except InstructorRetryException as e:
                 # This batch has problematic content - skip it
                 logger.warning(
                     "batch_skipped_output_parser_error",
