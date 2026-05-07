@@ -2,8 +2,6 @@
   <img src="assets/docta.png" alt="DOCTA logo" width="400"/>
 </p>
 
-<h1 align="center">DOCTA</h1>
-
 <p align="center"><i>A tool for tracking and analyzing differences across documentation versions using semantic content extraction.</i></p>
 
 ---
