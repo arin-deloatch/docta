@@ -1,0 +1,95 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "America/New_York",
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "labels": ["dependencies"],
+  "enabledManagers": ["pep621", "github-actions"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "automerge": false,
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "schedule": ["at any time"],
+    "minimumReleaseAge": "7 days",
+    "prPriority": 10
+  },
+  "packageRules": [
+    {
+      "description": "Major bumps — always human review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"]
+    },
+    {
+      "description": "Production deps minor+patch — group, human review",
+      "matchDepTypes": ["project.dependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false,
+      "groupName": "production dependencies"
+    },
+    {
+      "description": "Optional QA deps — human review",
+      "matchDepTypes": ["project.optional-dependencies"],
+      "automerge": false,
+      "labels": ["dependencies", "qa-extras"]
+    },
+    {
+      "description": "litellm — upper-bounded pin, disable until bound is lifted",
+      "matchPackageNames": ["litellm"],
+      "enabled": false
+    },
+    {
+      "description": "ragas — upper-bounded pin, disable until bound is lifted",
+      "matchPackageNames": ["ragas"],
+      "enabled": false
+    },
+    {
+      "description": "Dev dep patches — grouped",
+      "matchDepTypes": ["dependency-groups"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "dev dependency patches"
+    },
+    {
+      "description": "Dev dep minor — group, human review (lint rules can change)",
+      "matchDepTypes": ["dependency-groups"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "groupName": "dev dependency minor updates"
+    },
+    {
+      "description": "GitHub Actions patch+digest — grouped",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "groupName": "GitHub Actions patch updates"
+    },
+    {
+      "description": "GitHub Actions minor — group, human review",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "groupName": "GitHub Actions minor updates"
+    },
+    {
+      "description": "astral-sh/setup-uv minor+patch — group with patches; must be last to override the minor rule above",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["astral-sh/setup-uv"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "GitHub Actions patch updates"
+    }
+  ],
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "separateMinorPatch": true,
+  "ignorePaths": ["deployment/**"]
+}
