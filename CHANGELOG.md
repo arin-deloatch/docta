@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/arin-deloatch/docta/compare/v0.1.1...v0.1.2) (2026-05-07)
+
+
+### Documentation
+
+* remove redundant h1 title from README ([04fca03](https://github.com/arin-deloatch/docta/commit/04fca034cacaa1949284f8deb4fdea7efe04c5aa))
+
 ## [0.1.1](https://github.com/arin-deloatch/docta/compare/v0.1.0...v0.1.1) (2026-05-07)
 
 
