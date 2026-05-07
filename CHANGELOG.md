@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/arin-deloatch/docta/compare/v0.1.0...v0.1.1) (2026-05-07)
+
+
+### Bug Fixes
+
+* set build context to repo root in build-push workflow ([#21](https://github.com/arin-deloatch/docta/issues/21)) ([505a705](https://github.com/arin-deloatch/docta/commit/505a705c9c99fcb449737f14a37f49975984a0ac))
+
 ## 0.1.0 (2026-05-06)
 
 
