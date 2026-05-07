@@ -44,7 +44,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
-          context: deployment/docker
+          context: .
           file: deployment/docker/Dockerfile.poller
           push: true
           tags: ${{ steps.meta.outputs.tags }}
