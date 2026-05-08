@@ -1,16 +1,16 @@
-.PHONY: help install lint format type-check security test coverage all clean
+.PHONY: help install uv-lock-check install-deps-test ruff pylint lint black black-check type-check bandit security test coverage all pre-commit clean
 
 help:
 	@echo "Available targets:"
 	@echo "  install      - Install dependencies using uv"
 	@echo "  lint         - Run all linters (ruff, pylint)"
-	@echo "  format       - Format code with black"
-	@echo "  format-check - Check code formatting without changes"
+	@echo "  black        - Format code with black"
+	@echo "  black-check  - Check code formatting without changes"
 	@echo "  type-check   - Run type checkers (mypy, pyright)"
 	@echo "  security     - Run security checks (bandit)"
 	@echo "  test         - Run tests with pytest"
 	@echo "  coverage     - Run tests with coverage report"
-	@echo "  all          - Run format-check, lint, type-check, security, and test"
+	@echo "  all          - Run black-check, lint, type-check, security, and test"
 	@echo "  clean        - Remove cache and build artifacts"
 
 install:
