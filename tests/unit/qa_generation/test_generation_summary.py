@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from qa_generation.models import (
     EmbeddingConfig,
@@ -127,7 +128,7 @@ class TestGenerationStats:
 
     def test_non_negative_constraints(self) -> None:
         """Test that negative requested value raises a validation error."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             GenerationStats(requested=-1, generated=0, failed_topic_slugs=[])
 
 
