@@ -4,6 +4,12 @@ from qa_generation.models.extraction_stats import (
     AddedDocumentStats,
     SnippetExtractionStats,
 )
+from qa_generation.models.generation_summary import (
+    GenerationStats,
+    GenerationSummary,
+    ReportVersions,
+    SourceDocumentsSummary,
+)
 from qa_generation.models.provider_config import EmbeddingConfig, LLMConfig
 from qa_generation.models.qa_pair import (
     FilterConfig,
@@ -48,4 +54,9 @@ __all__ = [  # pylint: disable=duplicate-code
     # Extraction stats
     "SnippetExtractionStats",
     "AddedDocumentStats",
+    # Generation summary
+    "GenerationSummary",
+    "GenerationStats",
+    "ReportVersions",
+    "SourceDocumentsSummary",
 ]
