@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/arin-deloatch/docta/compare/v0.1.2...v0.2.0) (2026-05-08)
+
+
+### Features
+
+* **qa:** add GenerationSummary model and supporting types ([9b4b3f3](https://github.com/arin-deloatch/docta/commit/9b4b3f3ccc4622974921420c370620d7592af3ee))
+* **qa:** add write_generation_summary to qa_writer ([8b741f0](https://github.com/arin-deloatch/docta/commit/8b741f02edb48add23218b110aa6908bfec548fd))
+* **qa:** wire GenerationSummary into orchestrator pipeline ([c984ecd](https://github.com/arin-deloatch/docta/commit/c984ecd5aab56016d748a45bdec14eecd0baea88))
+
+
+### Documentation
+
+* update AGENTS.md to reflect full toolchain accurately ([9407298](https://github.com/arin-deloatch/docta/commit/94072988153fdc931cf0da24aa2a615e32e9919a))
+
 ## [0.1.2](https://github.com/arin-deloatch/docta/compare/v0.1.1...v0.1.2) (2026-05-07)
 
 
