@@ -10,6 +10,7 @@ Coordinates the full pipeline:
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 import structlog
@@ -25,11 +26,15 @@ from qa_generation.ingest.diff_report_reader import read_diff_report
 from qa_generation.ingest.snippet_extractor import extract_snippets
 from qa_generation.models import (
     AddedDocumentStats,
+    GenerationStats,
+    GenerationSummary,
     GeneratorConfig,
     QAPair,
     QASourceDocument,
+    ReportVersions,
+    SourceDocumentsSummary,
 )
-from qa_generation.output import write_qa_pairs
+from qa_generation.output import write_generation_summary, write_qa_pairs
 
 logger = structlog.get_logger(__name__)
 
@@ -39,7 +44,7 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
     generator: RAGASQAGenerator,
     config: GeneratorConfig,
     total_testset_size: int,
-) -> list[QAPair]:
+) -> tuple[list[QAPair], list[str]]:
     """Generate QA pairs with stratified sampling across topics.
 
     Ensures coverage across all topics by:
@@ -57,7 +62,7 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
         total_testset_size: Total number of QA pairs to generate
 
     Returns:
-        Combined list of QA pairs from all topics
+        Tuple of (combined QA pairs from all topics, failed topic slugs)
     """
     # Group documents by topic_slug
     topic_groups: dict[str, list[QASourceDocument]] = {}
@@ -89,6 +94,7 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
         )
 
     all_qa_pairs: list[QAPair] = []
+    failed_topic_slugs: list[str] = []
 
     # Generate for each topic
     for idx, (topic_slug, topic_docs) in enumerate(sorted(topic_groups.items())):
@@ -138,6 +144,7 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
                 error_type=type(e).__name__,
                 error=str(e)[:200],
             )
+            failed_topic_slugs.append(topic_slug)
             # Continue with other topics rather than failing completely
             continue
 
@@ -146,13 +153,15 @@ def _generate_stratified_by_topic(  # pylint: disable=too-many-locals
         total_topics=num_topics,
         total_qa_pairs=len(all_qa_pairs),
         requested=total_testset_size,
+        failed_topics=len(failed_topic_slugs),
+        failed_topic_slugs=failed_topic_slugs,
     )
 
     # Fail if we had source documents but generated nothing
     if not all_qa_pairs and source_documents:
         raise RuntimeError(f"Stratified generation failed: no QA pairs generated from " f"{len(source_documents)} source documents across {num_topics} topics")
 
-    return all_qa_pairs
+    return all_qa_pairs, failed_topic_slugs
 
 
 def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
@@ -245,13 +254,15 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
     logger.info("initializing_ragas_generator")
     generator = RAGASQAGenerator(settings)
 
+    # failed_slugs only populated in stratified path; single-topic failures propagate as exceptions
+    failed_slugs: list[str] = []
     if num_topics > 1:
         logger.info(
             "using_stratified_generation",
             num_topics=num_topics,
             testset_size=generator_config.testset_size,
         )
-        qa_pairs = _generate_stratified_by_topic(
+        qa_pairs, failed_slugs = _generate_stratified_by_topic(
             source_documents,
             generator,
             generator_config,
@@ -279,6 +290,27 @@ def generate_qa_from_report(  # pylint: disable=too-many-arguments,too-many-posi
         output_format=output_format,
         allow_overwrite=allow_overwrite,
     )
+
+    # Step 6: Write generation summary (best-effort; QA pairs already on disk)
+    try:
+        summary = GenerationSummary(
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            report_versions=ReportVersions(old=report.old_version, new=report.new_version),
+            settings=generator_config,
+            source_documents=SourceDocumentsSummary(
+                total=len(source_documents),
+                topics=len(unique_topics),
+            ),
+            generation=GenerationStats(
+                requested=generator_config.testset_size,
+                generated=len(qa_pairs),
+                failed_topic_slugs=failed_slugs,
+            ),
+            output_path=str(output_path),
+        )
+        write_generation_summary(summary, output_path.parent / "generation_summary.json")
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error("generation_summary_skipped", output_path=str(output_path), error=str(e))
 
     logger.info(
         "qa_generation_pipeline_complete",
@@ -407,13 +439,15 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
     logger.info("initializing_ragas_generator")
     generator = RAGASQAGenerator(settings)
 
+    # failed_slugs only populated in stratified path; single-topic failures propagate as exceptions
+    failed_slugs: list[str] = []
     if num_topics > 1:
         logger.info(
             "using_stratified_generation",
             num_topics=num_topics,
             testset_size=generator_config.testset_size,
         )
-        qa_pairs = _generate_stratified_by_topic(
+        qa_pairs, failed_slugs = _generate_stratified_by_topic(
             source_documents,
             generator,
             generator_config,
@@ -441,6 +475,27 @@ def generate_qa_from_delta_report(  # pylint: disable=too-many-arguments,too-man
         output_format=output_format,
         allow_overwrite=allow_overwrite,
     )
+
+    # Step 6: Write generation summary (best-effort; QA pairs already on disk)
+    try:
+        summary = GenerationSummary(
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            report_versions=ReportVersions(old=delta_report.old_version, new=delta_report.new_version),
+            settings=generator_config,
+            source_documents=SourceDocumentsSummary(
+                total=len(source_documents),
+                topics=len(unique_topics),
+            ),
+            generation=GenerationStats(
+                requested=generator_config.testset_size,
+                generated=len(qa_pairs),
+                failed_topic_slugs=failed_slugs,
+            ),
+            output_path=str(output_path),
+        )
+        write_generation_summary(summary, output_path.parent / "generation_summary.json")
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error("generation_summary_skipped", output_path=str(output_path), error=str(e))
 
     logger.info(
         "qa_generation_from_added_documents_complete",
@@ -534,6 +589,13 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
         total_added=len(delta_report.added),
     )
 
+    if diff_report.old_version != delta_report.old_version or diff_report.new_version != delta_report.new_version:
+        logger.warning(
+            "report_version_mismatch",
+            diff_versions=(diff_report.old_version, diff_report.new_version),
+            delta_versions=(delta_report.old_version, delta_report.new_version),
+        )
+
     added_sources = []
     if delta_report.added:
         logger.info("extracting_added_documents", max_documents=num_documents)
@@ -601,13 +663,15 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
     logger.info("initializing_ragas_generator")
     generator = RAGASQAGenerator(settings)
 
+    # failed_slugs only populated in stratified path; single-topic failures propagate as exceptions
+    failed_slugs: list[str] = []
     if num_topics > 1:
         logger.info(
             "using_stratified_generation",
             num_topics=num_topics,
             testset_size=generator_config.testset_size,
         )
-        qa_pairs = _generate_stratified_by_topic(
+        qa_pairs, failed_slugs = _generate_stratified_by_topic(
             all_sources,
             generator,
             generator_config,
@@ -635,6 +699,28 @@ def generate_qa_from_both_sources(  # pylint: disable=too-many-arguments,too-man
         output_format=output_format,
         allow_overwrite=allow_overwrite,
     )
+
+    # Step 6: Write generation summary (best-effort; QA pairs already on disk)
+    # Uses semantic diff report for versions; delta report versions should agree (mismatch warning above)
+    try:
+        summary = GenerationSummary(
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            report_versions=ReportVersions(old=diff_report.old_version, new=diff_report.new_version),
+            settings=generator_config,
+            source_documents=SourceDocumentsSummary(
+                total=len(all_sources),
+                topics=len(unique_topics),
+            ),
+            generation=GenerationStats(
+                requested=generator_config.testset_size,
+                generated=len(qa_pairs),
+                failed_topic_slugs=failed_slugs,
+            ),
+            output_path=str(output_path),
+        )
+        write_generation_summary(summary, output_path.parent / "generation_summary.json")
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error("generation_summary_skipped", output_path=str(output_path), error=str(e))
 
     logger.info(
         "unified_qa_generation_complete",
