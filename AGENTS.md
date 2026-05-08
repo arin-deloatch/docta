@@ -18,10 +18,11 @@ to work correctly in this repository.
 
 ## Formatting and linting
 
-- Formatter: `black` with `line-length = 200`.
-- Linter: `ruff` with `line-length = 200`.
-- Type checker: `pyright` in strict mode.
-- Run `make all` to verify before suggesting a change is complete.
+- Formatter: `black` with `line-length = 200`. Run via `make black`; check via `make black-check`.
+- Linters: `ruff` and `pylint`, both with `line-length = 200`. Run together via `make lint`.
+- Type checkers: `mypy` and `pyright` (pyright excludes `src/qa_generation`). Run via `make type-check`.
+- Security: `bandit -r src`. Run via `make security`.
+- Run `make all` (black-check + lint + type-check + security + test) before suggesting a change is complete.
 
 ## Logging
 
