@@ -10,6 +10,7 @@ import structlog
 import yaml
 
 from qa_generation.models import QAPair
+from qa_generation.models.generation_summary import GenerationSummary
 
 logger = structlog.get_logger(__name__)
 
@@ -162,6 +163,59 @@ def write_qa_pairs_yaml(
             tmp_path.unlink()
         logger.error("qa_write_failed", output_path=str(output_path), error=str(e))
         raise QAWriteError(f"Failed to write QA pairs: {e}") from e
+
+
+def write_generation_summary(
+    summary: GenerationSummary,
+    output_path: str | Path,
+) -> None:
+    """Write generation summary to JSON file with atomic write.
+
+    Uses atomic write (temp file + rename) to prevent corruption
+    if write is interrupted.
+
+    Unlike write_qa_pairs_*, this always overwrites — the summary reflects
+    the latest run and has no need for overwrite protection.
+
+    Args:
+        summary: GenerationSummary to write
+        output_path: Path to output JSON file (typically generation_summary.json)
+
+    Raises:
+        QAWriteError: If write fails
+    """
+    output_path = Path(output_path)
+
+    logger.info("writing_generation_summary", output_path=str(output_path))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=output_path.parent,
+            prefix=".tmp_generation_summary_",
+            suffix=".json",
+            delete=False,
+        ) as tmp_file:
+            json.dump(summary.model_dump(mode="json"), tmp_file, indent=2, ensure_ascii=False)
+            tmp_path = Path(tmp_file.name)
+
+        tmp_path.replace(output_path)
+
+        logger.info(
+            "generation_summary_written",
+            output_path=str(output_path),
+            size_bytes=output_path.stat().st_size,
+        )
+
+    except (OSError, IOError) as e:
+        if tmp_path and tmp_path.exists():
+            tmp_path.unlink()
+        logger.error("generation_summary_write_failed", output_path=str(output_path), error=str(e))
+        raise QAWriteError(f"Failed to write generation summary: {e}") from e
 
 
 def write_qa_pairs(
