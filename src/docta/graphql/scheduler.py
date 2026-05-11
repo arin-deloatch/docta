@@ -12,6 +12,7 @@ Orchestrates the polling loop with:
 from __future__ import annotations
 
 import signal
+import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -284,53 +285,53 @@ class PollingScheduler:
         # Save state before running pipeline
         self.state_manager.save_state(state)
 
-        # Process NEW documents (no diff, just QA generation)
-        if new_docs:
-            new_urls = [str(node.singlePage.contentUrl) for node in new_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
+        # Process NEW and MODIFIED documents under a single temp workspace.
+        # TemporaryDirectory gives an OS-managed path that is cleaned up automatically
+        # on exit, replacing the previous hardcoded relative tmp/graphql_polling path.
+        with tempfile.TemporaryDirectory(prefix=f"docta_{query_set.name}_") as tmp_ws:
+            workspace_base = Path(tmp_ws)
 
-            if new_urls:
-                workspace_base = Path("tmp/graphql_polling")
-                workspace_base.mkdir(parents=True, exist_ok=True)
+            # Process NEW documents (no diff, just QA generation)
+            if new_docs:
+                new_urls = [str(node.singlePage.contentUrl) for node in new_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
 
-                self.logger.info(
-                    "processing_new_documents_pipeline",
-                    query_set=query_set.name,
-                    count=len(new_urls),
-                )
-
-                try:
-                    self.pipeline_runner.run_for_new_documents(query_set, new_urls, workspace_base)
-                except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
-                    self.logger.error(
-                        "new_documents_pipeline_failed",
+                if new_urls:
+                    self.logger.info(
+                        "processing_new_documents_pipeline",
                         query_set=query_set.name,
-                        error=str(e),
-                        exc_info=True,
+                        count=len(new_urls),
                     )
 
-        # Process MODIFIED documents (full diff + QA pipeline)
-        if modified_docs:
-            modified_urls = [str(node.singlePage.contentUrl) for node in modified_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
+                    try:
+                        self.pipeline_runner.run_for_new_documents(query_set, new_urls, workspace_base)
+                    except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
+                        self.logger.error(
+                            "new_documents_pipeline_failed",
+                            query_set=query_set.name,
+                            error=str(e),
+                            exc_info=True,
+                        )
 
-            if modified_urls:
-                workspace_base = Path("tmp/graphql_polling")
-                workspace_base.mkdir(parents=True, exist_ok=True)
+            # Process MODIFIED documents (full diff + QA pipeline)
+            if modified_docs:
+                modified_urls = [str(node.singlePage.contentUrl) for node in modified_docs if node.singlePage and str(node.singlePage.contentUrl) in fetch_results]
 
-                self.logger.info(
-                    "processing_modified_documents_pipeline",
-                    query_set=query_set.name,
-                    count=len(modified_urls),
-                )
-
-                try:
-                    self.pipeline_runner.run_for_modified_documents(query_set, modified_urls, workspace_base)
-                except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
-                    self.logger.error(
-                        "modified_documents_pipeline_failed",
+                if modified_urls:
+                    self.logger.info(
+                        "processing_modified_documents_pipeline",
                         query_set=query_set.name,
-                        error=str(e),
-                        exc_info=True,
+                        count=len(modified_urls),
                     )
+
+                    try:
+                        self.pipeline_runner.run_for_modified_documents(query_set, modified_urls, workspace_base)
+                    except Exception as e:  # pylint: disable=broad-exception-caught  # Daemon must continue despite pipeline errors
+                        self.logger.error(
+                            "modified_documents_pipeline_failed",
+                            query_set=query_set.name,
+                            error=str(e),
+                            exc_info=True,
+                        )
 
         # Update statistics
         query_state = state.query_sets.get(query_set.name)
