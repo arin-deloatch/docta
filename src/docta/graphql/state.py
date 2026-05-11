@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+# fcntl is Linux-only. On NFS/CIFS, advisory locks are silently
+# ineffective (no exception raised, no mutual exclusion provided). Path.rename()
+# used in save_state is also non-atomic across NFS, independently of locking.
+# Multi-instance deployments on RWX PersistentVolumeClaims require a distributed
+# lock service (e.g. Redis SETNX or PostgreSQL advisory locks) instead.
 import fcntl
 import json
 import shutil
