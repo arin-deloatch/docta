@@ -80,8 +80,16 @@ def create_polling_components(
     # Initialize GraphQL client
     logger.info("initializing_graphql_client")
 
-    # Use cert_path for SSL verification if provided, otherwise use verify boolean
-    ssl_verify: bool | str = settings.graphql.ssl.cert_path or settings.graphql_cert_path or settings.graphql.ssl.verify
+    # Prefer explicit cert path over verify bool; env var cert overrides yaml cert.
+    _cert = settings.graphql.ssl.cert_path or settings.graphql_cert_path
+    graphql_ssl_verify: bool | str = _cert or settings.graphql.ssl.verify
+    if graphql_ssl_verify is False:
+        logger.warning("ssl_verification_disabled", component="graphql_client", source="config.graphql.ssl.verify")
+
+    # Content fetcher SSL is configured independently from GraphQL SSL.
+    content_ssl_verify: bool = settings.content.verify_ssl  # pylint: disable=no-member
+    if not content_ssl_verify:
+        logger.warning("ssl_verification_disabled", component="content_fetcher", source="config.content.verify_ssl")
 
     client = GraphQLClient(
         endpoint=settings.graphql.endpoint,
@@ -91,7 +99,7 @@ def create_polling_components(
         token_url=settings.graphql_token_url,
         apollographql_client_name=settings.apollographql_client_name,
         apollographql_client_version=settings.graphql.apollographql_client_version,
-        ssl_verify=ssl_verify,
+        ssl_verify=graphql_ssl_verify,
         timeout=settings.graphql.polling.timeout_seconds,
         retry_attempts=settings.graphql.polling.retry_attempts,
     )
@@ -105,7 +113,7 @@ def create_polling_components(
         max_size_mb=settings.content.max_file_size_mb,  # pylint: disable=no-member
         timeout=settings.content.timeout_seconds,  # pylint: disable=no-member
         max_workers=10,  # Default, can be overridden per query set
-        ssl_verify=ssl_verify,
+        ssl_verify=content_ssl_verify,
     )
 
     # Initialize state manager
