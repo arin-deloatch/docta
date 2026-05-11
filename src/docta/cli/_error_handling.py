@@ -134,7 +134,7 @@ def handle_qa_errors(func: Callable[P, Any]) -> Callable[P, Any]:
 
             safe_msg = _sanitize_error(e)
             typer.secho(f"Unexpected Error: {safe_msg}", fg=typer.colors.RED, bold=True)
-            logger.exception("unexpected_error")
+            logger.error("unexpected_error", error_type=type(e).__name__, error=safe_msg)
             raise typer.Exit(1)
 
     return wrapper
