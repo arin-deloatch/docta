@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import pytest
+import requests
 import typer
 
-from docta.cli._error_handling import handle_cli_errors, handle_qa_errors
+from docta.cli._error_handling import _sanitize_error, handle_cli_errors, handle_qa_errors
 
 
 class TestHandleCliErrors:
@@ -175,6 +176,56 @@ class TestHandleQaErrors:
             raises_generic_exception()
 
         assert exc_info.value.exit_code == 1
+
+
+class TestSanitizeError:
+    """Tests for _sanitize_error helper."""
+
+    def test_http_error_with_response_returns_status_only(self) -> None:
+        """Test that HTTPError messages are reduced to the status code."""
+        response = requests.Response()
+        response.status_code = 401
+        response.url = "https://user:secret@api.host.com/token?client_secret=abc123"
+        error = requests.HTTPError("401 Unauthorized for url: https://user:secret@api.host.com/token?client_secret=abc123", response=response)
+
+        result = _sanitize_error(error)
+
+        assert result == "HTTP 401 error from server"
+        assert "secret" not in result
+        assert "user" not in result
+        assert "token" not in result
+
+    def test_http_error_without_response_returns_unknown_status(self) -> None:
+        """Test that HTTPError with no response uses 'unknown' status."""
+        error = requests.HTTPError("connection failed")
+
+        result = _sanitize_error(error)
+
+        assert result == "HTTP unknown error from server"
+
+    def test_non_http_error_returns_str(self) -> None:
+        """Test that non-HTTP exceptions pass through as str(e)."""
+        error = ValueError("bad value")
+
+        assert _sanitize_error(error) == "bad value"
+
+    def test_http_error_sanitized_in_handle_cli_errors(self, capsys) -> None:
+        """Test that HTTPError is sanitized before reaching stderr."""
+        sentinel = "xyzSensitiveToken99"
+        response = requests.Response()
+        response.status_code = 403
+        response.url = f"https://api.host.com/token?access_token={sentinel}"
+
+        @handle_cli_errors
+        def raises_http_error() -> None:
+            raise requests.HTTPError(response=response)
+
+        with pytest.raises(SystemExit):
+            raises_http_error()
+
+        captured = capsys.readouterr()
+        assert sentinel not in captured.err
+        assert "HTTP 403" in captured.err
 
 
 class TestErrorHandlerIntegration:

@@ -8,12 +8,26 @@ import functools
 import sys
 from typing import Any, Callable, ParamSpec
 
+import requests
 import structlog
 import typer
 
 P = ParamSpec("P")
 
 logger = structlog.get_logger(__name__)
+
+
+def _sanitize_error(e: Exception) -> str:
+    """Return a safe string for the exception, stripping URL/token data from HTTP errors.
+
+    requests.HTTPError.__str__() includes the full request URL, which may contain
+    embedded auth tokens. Emit only the status code to prevent leaking credentials
+    to stderr or log aggregators.
+    """
+    if isinstance(e, requests.HTTPError):
+        status = e.response.status_code if e.response is not None else "unknown"
+        return f"HTTP {status} error from server"
+    return str(e)
 
 
 def handle_cli_errors(func: Callable[P, Any]) -> Callable[P, Any]:
@@ -43,8 +57,9 @@ def handle_cli_errors(func: Callable[P, Any]) -> Callable[P, Any]:
             sys.exit(0)
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Top-level CLI handler needs to catch all exceptions
-            logger.error(f"{func.__name__}_failed", error_type=type(e).__name__, error=str(e))
-            typer.echo(f"Error: {e}", err=True)
+            safe_msg = _sanitize_error(e)
+            logger.error(f"{func.__name__}_failed", error_type=type(e).__name__, error=safe_msg)
+            typer.echo(f"Error: {safe_msg}", err=True)
             sys.exit(1)
 
     return wrapper
@@ -117,7 +132,8 @@ def handle_qa_errors(func: Callable[P, Any]) -> Callable[P, Any]:
                 # QA dependencies not available, fall through to generic handler
                 pass
 
-            typer.secho(f"Unexpected Error: {e}", fg=typer.colors.RED, bold=True)
+            safe_msg = _sanitize_error(e)
+            typer.secho(f"Unexpected Error: {safe_msg}", fg=typer.colors.RED, bold=True)
             logger.exception("unexpected_error")
             raise typer.Exit(1)
 
