@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.2](https://github.com/arin-deloatch/docta/compare/v0.2.1...v0.2.2) (2026-05-11)
+
+
+### Documentation
+
+* add mkdocs.yml with Material theme configuration ([b98c94d](https://github.com/arin-deloatch/docta/commit/b98c94d59ad8935e361a280414e89e86712b5421))
+* add text hint to fenced code blocks for ASCII diagrams ([ab8d85c](https://github.com/arin-deloatch/docta/commit/ab8d85c8ad8b976ed5323c571091039ccaa65990))
+* migrate README into docs/ directory for GitHub Pages ([4926e3f](https://github.com/arin-deloatch/docta/commit/4926e3f1fe41144bcff54f899b66f9029ea17ab8))
+* slim README to landing page pointing to GitHub Pages site ([f4b74f3](https://github.com/arin-deloatch/docta/commit/f4b74f38469787802e57f1a3a19444d51e59ff33))
+
 ## [0.2.1](https://github.com/arin-deloatch/docta/compare/v0.2.0...v0.2.1) (2026-05-11)
 
 
