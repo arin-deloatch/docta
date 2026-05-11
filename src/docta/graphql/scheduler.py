@@ -11,6 +11,7 @@ Orchestrates the polling loop with:
 
 from __future__ import annotations
 
+import re
 import signal
 import tempfile
 import time
@@ -288,7 +289,8 @@ class PollingScheduler:
         # Process NEW and MODIFIED documents under a single temp workspace.
         # TemporaryDirectory gives an OS-managed path that is cleaned up automatically
         # on exit, replacing the previous hardcoded relative tmp/graphql_polling path.
-        with tempfile.TemporaryDirectory(prefix=f"docta_{query_set.name}_") as tmp_ws:
+        safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", query_set.name)
+        with tempfile.TemporaryDirectory(prefix=f"docta_{safe_name}_") as tmp_ws:
             workspace_base = Path(tmp_ws)
 
             # Process NEW documents (no diff, just QA generation)

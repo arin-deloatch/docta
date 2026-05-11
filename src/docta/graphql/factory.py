@@ -80,8 +80,8 @@ def create_polling_components(
     # Initialize GraphQL client
     logger.info("initializing_graphql_client")
 
-    # Prefer explicit cert path over verify bool; env var cert overrides yaml cert.
-    _cert = settings.graphql.ssl.cert_path or settings.graphql_cert_path
+    # Env var cert takes precedence over yaml cert_path; fall back to verify bool.
+    _cert = settings.graphql_cert_path or settings.graphql.ssl.cert_path
     graphql_ssl_verify: bool | str = _cert or settings.graphql.ssl.verify
     if graphql_ssl_verify is False:
         logger.warning("ssl_verification_disabled", component="graphql_client", source="config.graphql.ssl.verify")
