@@ -97,7 +97,22 @@ MAX_PREVIEW_BLOCKS = 3  # Maximum number of blocks to include in HTML snippets
 SECTION_MATCH_THRESHOLD = 85.0  # Minimum similarity for section matching (0-100)
 
 # Security constants
-FORBIDDEN_SYSTEM_DIRS = frozenset({"/etc", "/sys", "/proc", "/dev", "/boot", "/root"})  # System directories forbidden for writing
+FORBIDDEN_SYSTEM_DIRS = frozenset(
+    {
+        "/etc",
+        "/sys",
+        "/proc",
+        "/dev",
+        "/boot",
+        "/root",
+        "/bin",
+        "/sbin",
+        "/usr/bin",
+        "/usr/sbin",
+        "/lib",
+        "/usr/lib",
+    }
+)  # System directories forbidden for writing
 
 # Document comparison constants
 DEFAULT_EXCLUDE_FROM_RENAME = frozenset({"release_notes"})  # Topic slugs to exclude from rename detection by default
