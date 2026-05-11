@@ -4,7 +4,7 @@ The daemon automates documentation change detection by polling a GraphQL API at 
 
 ## Architecture
 
-```
+```text
 GraphQL API → Daemon polls → Changes detected → Fetch content → Run pipeline
    ↓                                                                  ↓
 OAuth Auth                                               Diff + QA Generation
