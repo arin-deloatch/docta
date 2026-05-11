@@ -1,6 +1,6 @@
 [project]
 name = "docta"
-version = "0.2.0"
+version = "0.2.1"
 description = "Documentation change tracker with semantic diff extraction, fuzzy rename detection, GraphQL polling, and optional QA generation"
 readme = "README.md"
 requires-python = ">=3.13"

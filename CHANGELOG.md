@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.1](https://github.com/arin-deloatch/docta/compare/v0.2.0...v0.2.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* **security:** address CodeRabbit review findings ([ad2edce](https://github.com/arin-deloatch/docta/commit/ad2edce221f6ec842f80aa0135fcb82fb5f78440))
+* **security:** extend FORBIDDEN_SYSTEM_DIRS with OS-protected binary and library paths ([25a3634](https://github.com/arin-deloatch/docta/commit/25a36349e684ad2ad4e0e0fcecc652a8c28aa2e0))
+* **security:** replace hardcoded tmp/graphql_polling with tempfile.TemporaryDirectory ([2c4d13f](https://github.com/arin-deloatch/docta/commit/2c4d13f0803b3c09ad15d848001ca87db8285dfc))
+* **security:** resolve SSL cert path truthiness bug and wire ContentConfig.verify_ssl ([bf61670](https://github.com/arin-deloatch/docta/commit/bf6167030f4fb5a10ed637bad763da13fb576291))
+* **security:** sanitize HTTPError messages before writing to stderr and logs ([d58b860](https://github.com/arin-deloatch/docta/commit/d58b860beadda1b1735ea2e8df91e3ea1baa67a5))
+
+
+### Documentation
+
+* **security:** document fcntl Linux-only and NFS limitations in state.py ([cd93d84](https://github.com/arin-deloatch/docta/commit/cd93d84bc4094345b6c3d7cb15afbe34da56a77b))
+
 ## [0.2.0](https://github.com/arin-deloatch/docta/compare/v0.1.2...v0.2.0) (2026-05-08)
 
 
