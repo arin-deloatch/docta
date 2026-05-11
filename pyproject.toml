@@ -17,6 +17,10 @@ dependencies = [
   "typer>=0.12.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/arin-deloatch/docta"
+Documentation = "https://arin-deloatch.github.io/docta/"
+
 [project.optional-dependencies]
 qa = [
   "ragas>=0.4.3,<0.5.0",
@@ -50,6 +54,9 @@ dev = [
     "ruff>=0.15.6",
     "types-pyyaml>=6.0.12.20260408",
     "types-requests>=2.33.0.20260408",
+]
+docs = [
+    "mkdocs-material>=9.7.6",
 ]
 
 [tool.pylint.format]
