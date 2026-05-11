@@ -6,17 +6,17 @@ from __future__ import annotations
 
 import functools
 import sys
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, ParamSpec
 
 import structlog
 import typer
 
-F = TypeVar("F", bound=Callable[..., Any])
+P = ParamSpec("P")
 
 logger = structlog.get_logger(__name__)
 
 
-def handle_cli_errors(func: F) -> F:
+def handle_cli_errors(func: Callable[P, Any]) -> Callable[P, Any]:
     """Decorator for diff/daemon command error handling.
 
     Catches common exceptions and provides user-friendly error messages
@@ -30,7 +30,7 @@ def handle_cli_errors(func: F) -> F:
     """
 
     @functools.wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
         try:
             return func(*args, **kwargs)
         except FileNotFoundError as e:
@@ -47,10 +47,10 @@ def handle_cli_errors(func: F) -> F:
             typer.echo(f"Error: {e}", err=True)
             sys.exit(1)
 
-    return wrapper  # type: ignore[return-value]
+    return wrapper
 
 
-def handle_qa_errors(func: F) -> F:
+def handle_qa_errors(func: Callable[P, Any]) -> Callable[P, Any]:
     """Decorator for QA generation command error handling.
 
     Provides specialized error messages for QA generation failures,
@@ -66,7 +66,7 @@ def handle_qa_errors(func: F) -> F:
     """
 
     @functools.wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
         try:
             return func(*args, **kwargs)
         except FileNotFoundError as e:
@@ -121,4 +121,4 @@ def handle_qa_errors(func: F) -> F:
             logger.exception("unexpected_error")
             raise typer.Exit(1)
 
-    return wrapper  # type: ignore[return-value]
+    return wrapper
