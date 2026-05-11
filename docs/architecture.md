@@ -4,7 +4,7 @@ DOCTA follows a modular architecture with clear separation between the core diff
 
 ## Source tree
 
-```
+```text
 src/
 ├── docta/                        # Core diff tracking
 │   ├── cli/                      # Modular CLI (unified entry point)
