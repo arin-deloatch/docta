@@ -1,0 +1,58 @@
+site_name: DOCTA
+site_description: Documentation change tracker with semantic diff extraction, fuzzy rename detection, GraphQL polling, and optional QA generation
+site_url: https://arin-deloatch.github.io/docta/
+repo_url: https://github.com/arin-deloatch/docta
+repo_name: arin-deloatch/docta
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Usage:
+    - Document Comparison: usage/diff.md
+    - GraphQL Daemon: usage/daemon.md
+    - QA Generation: usage/qa.md
+  - Reference:
+    - Commands: reference/commands.md
+    - Output Formats: reference/output-formats.md
+  - Architecture: architecture.md
+  - Development: development.md
+  - Security: security.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
