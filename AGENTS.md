@@ -63,3 +63,11 @@ to work correctly in this repository.
 - Never hardcode API keys, tokens, or credentials.
 - All secrets must be read from environment variables.
 - Reference `.env.example` for the expected variable names.
+
+## Pull requests
+
+- Before opening a PR, read `.github/pull_request_template.md` and fill every section.
+- Infer Type of Change from the conventional commit prefix of the commits in the branch.
+- Testing Done must describe how the change was verified — not just "tests pass".
+- Always include yourself under AI Tools Used (e.g. `Claude Code (claude-sonnet-4-6)`).
+- Never leave placeholder bullets (`-`) unfilled.
