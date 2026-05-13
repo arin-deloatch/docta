@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   graphql-poller:
     build:
@@ -45,9 +43,9 @@ services:
         compress: "true"
 
     # Network configuration
-    # For VPN access, you may need:
-    # network_mode: "host"
-    # or connect to a VPN network
+    # For local VPN access you may need network_mode: "host", but note that this is
+    # not supported in OpenShift — pods always use isolated pod networking there.
+    # For OpenShift VPN/cluster connectivity use a sidecar proxy or network policy.
     networks:
       - default
 
