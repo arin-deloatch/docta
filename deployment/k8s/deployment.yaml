@@ -34,8 +34,6 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
           command:
-            - uv
-            - run
             - docta
             - daemon
             - start
