@@ -1,6 +1,8 @@
 # Multi-stage build for GraphQL Polling Daemon
 # Uses uv for dependency management
 
+# python:3.13-slim used because ubi9/python-313 does not yet exist in the Red Hat catalog.
+# Switch to registry.access.redhat.com/ubi9/python-313 once available.
 FROM python:3.13-slim AS builder
 
 WORKDIR /app
@@ -22,7 +24,7 @@ COPY config/ ./config/
 # Now install the project itself
 RUN uv sync --frozen
 
-# Production stage
+# Production stage — same base as builder; switch both to UBI once ubi9/python-313 is available.
 FROM python:3.13-slim
 
 WORKDIR /app
@@ -32,18 +34,21 @@ COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/src /app/src
 COPY --from=builder /app/config /app/config
 
-# Create non-root user
+# Create non-root user; use GID 0 + g=u so OpenShift's arbitrary UID (always GID 0) can write
 RUN useradd -u 1000 -s /bin/false docpoller && \
     mkdir -p /app/data /app/logs /app/config/state /app/output /app/tmp && \
-    chown -R docpoller:docpoller /app
+    chown -R 1000 /app && \
+    chgrp -R 0 /app && \
+    chmod -R g=u /app
 
-# Switch to non-root user
-USER docpoller
+# Use numeric UID — OpenShift can only honour numeric values, not usernames
+USER 1000
 
 # Add venv to PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Health check
+# Health check (local Docker / docker-compose only).
+# OpenShift ignores HEALTHCHECK — define liveness/readiness probes in the deployment manifest instead.
 HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 \
     CMD docta daemon status --config /app/config/graphql_polling.yaml || exit 1
 
