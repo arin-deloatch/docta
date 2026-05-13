@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.3](https://github.com/arin-deloatch/docta/compare/v0.2.2...v0.2.3) (2026-05-13)
+
+
+### Bug Fixes
+
+* **docker:** make Dockerfile and k8s manifest OpenShift-compatible ([ec34d5e](https://github.com/arin-deloatch/docta/commit/ec34d5e94b589b58453a7d60583a6faf4e41f02e))
+
+
+### Documentation
+
+* **docker:** update README with pre-built image usage and fix stale commands ([5890b2e](https://github.com/arin-deloatch/docta/commit/5890b2e8b732a6a764ee89b97d8b54d4ef86e3e3))
+
 ## [0.2.2](https://github.com/arin-deloatch/docta/compare/v0.2.1...v0.2.2) (2026-05-11)
 
 
