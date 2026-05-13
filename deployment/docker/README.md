@@ -34,6 +34,73 @@ docker-compose logs -f graphql-poller
 docker-compose ps
 ```
 
+## Using the pre-built image
+
+If you are pulling the image directly from a registry (e.g. quay.io) rather than
+building from source, supply your own configuration files at runtime via volume mounts.
+Two files are required:
+
+| File | Purpose | Default path in container |
+|---|---|---|
+| `graphql_polling.yaml` | GraphQL endpoints, polling interval, OAuth config | `/app/config/graphql_polling.yaml` |
+| `system.yaml` | QA generation settings (LLM, embeddings, filters) | `/app/config/system.yaml` |
+
+Use the templates in `deployment/config-templates/` as a starting point.
+
+> **Note:** The path to `system.yaml` is controlled by the `qa_config` field inside
+> `graphql_polling.yaml`. If you mount `system.yaml` at a different path, update
+> `qa_config` to match.
+
+### Plain Docker
+
+```bash
+docker run \
+  -v /path/to/graphql_polling.yaml:/app/config/graphql_polling.yaml:ro \
+  -v /path/to/system.yaml:/app/config/system.yaml:ro \
+  -v docta-data:/app/data \
+  -v docta-state:/app/config/state \
+  -v docta-output:/app/output \
+  -e GRAPHQL_CLIENT_ID=your_client_id \
+  -e GRAPHQL_CLIENT_SECRET=your_client_secret \
+  -e GRAPHQL_TOKEN_URL=https://your-token-url \
+  -e APOLLOGRAPHQL_CLIENT_NAME=docta-poller \
+  quay.io/yourorg/docta-poller:latest
+```
+
+### OpenShift (direct image, no k8s manifests)
+
+Create ConfigMaps from your local config files:
+
+```bash
+oc create configmap docta-graphql-config \
+  --from-file=graphql_polling.yaml=/path/to/graphql_polling.yaml
+
+oc create configmap docta-system-config \
+  --from-file=system.yaml=/path/to/system.yaml
+```
+
+Create a secret for OAuth credentials:
+
+```bash
+oc create secret generic docta-secrets \
+  --from-literal=GRAPHQL_CLIENT_ID=your_client_id \
+  --from-literal=GRAPHQL_CLIENT_SECRET=your_client_secret \
+  --from-literal=GRAPHQL_TOKEN_URL=https://your-token-url \
+  --from-literal=APOLLOGRAPHQL_CLIENT_NAME=docta-poller
+```
+
+Then reference both ConfigMaps and the secret in your deployment, mounting:
+
+- `docta-graphql-config` → `/app/config/graphql_polling.yaml` (subPath: `graphql_polling.yaml`, readOnly)
+- `docta-system-config` → `/app/config/system.yaml` (subPath: `system.yaml`, readOnly)
+- A PVC or `emptyDir` → `/app/data` (fetched HTML content)
+- A PVC or `emptyDir` → `/app/config/state` (polling state and backups)
+
+> **Note:** `emptyDir` volumes are ephemeral — state is lost on pod restart.
+> Use PersistentVolumeClaims for production. See `../k8s/` for PVC definitions.
+
+---
+
 ## Management
 
 ### View logs
@@ -69,11 +136,11 @@ docker-compose down -v
 
 ```bash
 # Check daemon status
-docker-compose exec graphql-poller docta daemon-status \
+docker-compose exec graphql-poller docta daemon status \
     --config /app/config/graphql_polling.yaml
 
 # Run single poll cycle (for testing)
-docker-compose exec graphql-poller docta daemon-run-once \
+docker-compose exec graphql-poller docta daemon run-once \
     --config /app/config/graphql_polling.yaml \
     --verbose
 
@@ -148,7 +215,7 @@ Common issues:
 ```bash
 # Run single poll cycle with verbose output
 docker-compose run --rm graphql-poller \
-    docta daemon-run-once \
+    docta daemon run-once \
     --config /app/config/graphql_polling.yaml \
     --verbose
 ```
@@ -163,7 +230,7 @@ docker-compose exec graphql-poller ls -la /app/data
 
 # Fix ownership (if needed)
 docker-compose exec --user root graphql-poller \
-    chown -R docpoller:docpoller /app/data /app/config/state /app/output
+    chown -R 1000:0 /app/data /app/config/state /app/output
 ```
 
 ### Network issues
