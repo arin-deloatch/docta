@@ -120,7 +120,7 @@ class PipelineConfig(BaseModel):
 
     version_label: str
     output_dir: str
-    run_qa_generation: bool = True
+    run_qa_generation: bool = False
     qa_config: str = "config/system.yaml"
     max_concurrent_fetches: int = Field(default=10, ge=1, le=50)
 
