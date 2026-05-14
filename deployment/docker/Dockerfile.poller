@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml uv.lock ./
 
 # Install dependencies only (without building the project)
-RUN uv sync --frozen --no-install-project
+RUN uv sync --frozen --no-install-project --extra qa
 
 # Copy source code and README
 COPY README.md ./
@@ -22,7 +22,7 @@ COPY src/ ./src/
 COPY config/ ./config/
 
 # Now install the project itself
-RUN uv sync --frozen
+RUN uv sync --frozen --extra qa
 
 # Production stage — same base as builder; switch both to UBI once ubi9/python-313 is available.
 FROM python:3.13-slim
