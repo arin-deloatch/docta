@@ -310,7 +310,7 @@ class TestPipelineConfig:
     def test_pipeline_config_defaults(self) -> None:
         """Test pipeline config default values."""
         config = PipelineConfig(version_label="v1", output_dir="output")
-        assert config.run_qa_generation is True
+        assert config.run_qa_generation is False
         assert config.qa_config == "config/system.yaml"
         assert config.max_concurrent_fetches == 10
 
