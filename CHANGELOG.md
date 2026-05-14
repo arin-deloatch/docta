@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4](https://github.com/arin-deloatch/docta/compare/v0.2.3...v0.2.4) (2026-05-14)
+
+
+### Bug Fixes
+
+* adjusting boolean test assertion to reflect new changes ([d1930de](https://github.com/arin-deloatch/docta/commit/d1930decae115cbeceee9a53be54b1ef06799fc9))
+* **docker:** install qa extra in poller image to resolve langchain_core import ([4faedb4](https://github.com/arin-deloatch/docta/commit/4faedb42cce75fa07c715c0d6cabb894ac9b3da7))
+* **models:** default run_qa_generation to False for safer bare configs ([f48337d](https://github.com/arin-deloatch/docta/commit/f48337d0b94cc58bb102ff5a64f65a082c83a831))
+
 ## [0.2.3](https://github.com/arin-deloatch/docta/compare/v0.2.2...v0.2.3) (2026-05-13)
 
 
