@@ -80,7 +80,9 @@ def _build_section_map(sections: list[Section]) -> dict[str, list[Section]]:
     section_map: dict[str, list[Section]] = {}
 
     for i, section in enumerate(sections):
-        if section.heading:
+        if section.section_id:
+            key = section.section_id
+        elif section.heading:
             key = f"{section.heading.text}|L{section.level}"
         else:
             key = f"(preamble)|L{section.level}|#{i}"
@@ -119,7 +121,13 @@ def _find_matching_section(  # pylint: disable=too-many-branches
                     return preamble_key, section
         return None, None
 
-    # Try exact match first
+    # Stable section id takes priority over heading text matching
+    if new_section.section_id and new_section.section_id in old_sections_map:
+        for section in old_sections_map[new_section.section_id]:
+            if id(section) not in old_matched:
+                return new_section.section_id, section
+
+    # Try exact heading text match
     new_key = f"{new_section.heading.text}|L{new_section.level}"
     if new_key in old_sections_map:
         old_sections = old_sections_map[new_key]
