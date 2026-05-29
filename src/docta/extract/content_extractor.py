@@ -293,11 +293,20 @@ def _process_heading(
     if len(section_stack) >= MAX_SECTION_DEPTH:
         raise ValueError(f"Section nesting depth exceeds maximum ({MAX_SECTION_DEPTH}). " "Document structure may be malformed.")
 
+    # Prefer the stable id from the parent <section> element over the heading's own id_attr,
+    # which is usually None. Filter out auto-generated ids (e.g. "idm139769390444672") that
+    # are memory-address-based and not stable across document versions.
+    section_id = heading.id_attr
+    if not section_id and elem.parent and elem.parent.name == "section":
+        parent_id = elem.parent.get("id")
+        if parent_id and not str(parent_id).startswith("idm"):
+            section_id = str(parent_id)
+
     # Create new section
     new_section = Section(
         heading=heading,
         level=heading.level,
-        section_id=heading.id_attr,
+        section_id=section_id,
     )
 
     # Determine where to attach based on hierarchy
