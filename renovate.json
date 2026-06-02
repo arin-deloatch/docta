@@ -2,26 +2,22 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":dependencyDashboard",
-    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
     "helpers:pinGitHubActionDigests"
   ],
   "timezone": "America/New_York",
-  "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 5,
   "prHourlyLimit": 2,
   "labels": ["dependencies"],
   "enabledManagers": ["pep621", "github-actions"],
   "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["before 6am on monday"]
+    "enabled": true
   },
   "automerge": false,
   "vulnerabilityAlerts": {
     "labels": ["dependencies", "security"],
     "schedule": ["at any time"],
-    "minimumReleaseAge": "7 days",
-    "prPriority": 10
+    "minimumReleaseAge": null
   },
   "packageRules": [
     {
@@ -87,9 +83,6 @@
       "groupName": "GitHub Actions patch updates"
     }
   ],
-  "commitMessagePrefix": "chore(deps):",
-  "commitMessageAction": "update",
-  "commitMessageTopic": "{{depName}}",
   "separateMinorPatch": true,
   "ignorePaths": ["deployment/**"]
 }
