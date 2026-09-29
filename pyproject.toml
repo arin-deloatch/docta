@@ -80,6 +80,10 @@ line-length = 200
 line-length = 200
 
 [tool.ruff.lint]
+# Pin the rule set explicitly. Ruff's implicit defaults expanded from 58 to 413
+# rules in 0.16, so relying on them makes lint results depend on the resolved
+# ruff version. These four are ruff's pre-0.16 defaults.
+select = ["E4", "E7", "E9", "F"]
 ignore = [
     "E402",  # import-outside-toplevel (module level import not at top of file)
 ]
